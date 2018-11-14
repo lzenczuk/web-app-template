@@ -43,6 +43,7 @@ let projectModel = {
                 {id: 100, name: "Collect prescription", done: true},
                 {id: 101, name: "Buy vegetables", done: false},
                 {id: 102, name: "Prepare meal for tomorrow", done: false},
+                {id: 103, name: "Very long test text. Very long test text. Very long test text.", done: false},
             ]
         }
     ]
@@ -62,20 +63,20 @@ const TasksList = (props) => {
 
     let list = props.model;
 
-    return <List item xs={3}>
+    return <Grid item xs={12} sm={6} md={4} lg={3}>
         <Toolbar>
             <Typography variant="h6" color="inherit">
                 {list.name}
             </Typography>
         </Toolbar>
         <List component="nav">{list.tasks.map( task => <Task key={task.id} model={task}/>)}</List>
-    </List>
+    </Grid>
 };
 
 const Project = (props) => {
     let project = props.model;
 
-    return <Grid container direction="row" justify="flex-start" alignItems="flex-start">
+    return <Grid container spacing={8}>
         { project.lists.map( list => <TasksList key={list.id} model={list}/>)}
     </Grid>
 };
