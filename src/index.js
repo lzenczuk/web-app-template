@@ -1,8 +1,9 @@
-function component() {
-    let element = document.createElement('div');
-    element.innerHTML = "Hello web pack";
+import React from "react";
+import ReactDOM from "react-dom";
 
-    return element;
-}
+const Index = () => {
+    return <div>Hello React!</div>;
+};
 
-document.body.appendChild(component());
+ReactDOM.render(<Index />, document.getElementById("index"));
+
