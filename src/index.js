@@ -1,6 +1,15 @@
-import React from "react";
+import React, {Fragment} from "react";
 import ReactDOM from "react-dom";
 
+import CssBaseline from '@material-ui/core/CssBaseline';
+
+import Grid from '@material-ui/core/Grid';
+import Toolbar from '@material-ui/core/Toolbar';
+import Typography from '@material-ui/core/Typography';
+import List from '@material-ui/core/List';
+import ListItem from '@material-ui/core/ListItem';
+import ListItemText from '@material-ui/core/ListItemText';
+import Checkbox from '@material-ui/core/Checkbox';
 
 let projectModel = {
     lists: [
@@ -24,7 +33,7 @@ let projectModel = {
                 {id: 102, name: "Add react", done: true},
                 {id: 103, name: "Create basic list component", done: false},
                 {id: 104, name: "Add Material UI", done: false},
-                {id: 104, name: "Rewrite list to MUI", done: false},
+                {id: 105, name: "Rewrite list to MUI", done: false},
             ]
         },
         {
@@ -43,35 +52,41 @@ const Task = (props) => {
 
     let task = props.model;
 
-    let doneButton = "";
-    if(task.done){
-        doneButton = <span>x</span>
-    }
-
-    return <li>
-        <span>{task.name}</span>
-        {doneButton}
-    </li>
+    return <ListItem button>
+        <ListItemText primary={task.name}/>
+        <Checkbox checked={task.done}/>
+    </ListItem>
 };
 
-const List = (props) => {
+const TasksList = (props) => {
 
     let list = props.model;
 
-    return <div>
-        <h3>{list.name}</h3>
-        <ul>{list.tasks.map( task => <Task key={task.id} model={task}/>)}</ul>
-    </div>
+    return <List item xs={3}>
+        <Toolbar>
+            <Typography variant="h6" color="inherit">
+                {list.name}
+            </Typography>
+        </Toolbar>
+        <List component="nav">{list.tasks.map( task => <Task key={task.id} model={task}/>)}</List>
+    </List>
 };
 
 const Project = (props) => {
     let project = props.model;
 
-    return <div>
-        { project.lists.map( list => <List key={list.id} model={list}/>)}
-    </div>
+    return <Grid container direction="row" justify="flex-start" alignItems="flex-start">
+        { project.lists.map( list => <TasksList key={list.id} model={list}/>)}
+    </Grid>
 };
 
-ReactDOM.render(<Project model={projectModel} />, document.getElementById("index"));
+const App = () => {
+    return <Fragment>
+        <CssBaseline/>
+        <Project model={projectModel}/>
+    </Fragment>
+};
+
+ReactDOM.render(<App/>, document.getElementById("index"));
 
 
