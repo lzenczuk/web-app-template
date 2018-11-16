@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>tmp</title>
+    <style type="text/css">
+        #main_container {
+            border: gray solid 1px;
+            display: flex;
+            flex-flow: column;
+            padding-top: 50px;
+            position: absolute;
+            top: 0;
+            left: 0;
+            bottom: 0;
+            right: 0;
+        }
+
+        #editor_container {
+            border: gray solid 1px;
+            display: flex;
+            flex-grow: 1;
+        }
+
+        #bar {
+            border: green solid 1px;
+            flex-grow: 1;
+        }
+
+        #left_menu {
+            border: red solid 1px;
+            width: 272px;
+        }
+
+        #main {
+            border: cornflowerblue solid 1px;
+            flex-grow: 1;
+        }
+    </style>
+</head>
+<body>
+<div id="main_container">
+    <div id="bar_container">
+        <div id="bar">work bar</div>
+    </div>
+    <div id="editor_container">
+        <div id="left_menu">left menu</div>
+        <div id="main">main</div>
+    </div>
+</div>
+</body>
+</html>
