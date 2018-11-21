@@ -66,9 +66,9 @@ const Inner = withStyles(style)((props) => {
         </ListItem>
         <Collapse in={true}>
             <List dense={dense}>
-                <ListItem button>
+                <ListItem button selected={true}>
                     <ListItemIcon style={{paddingLeft: 16}}><InsertDriveFile/><Badge badgeContent="abi" classes={{ badge: classes.abiFile }}/></ListItemIcon>
-                    <ListItemText secondary="generated">hello.abi</ListItemText>
+                    <ListItemText secondary="generated"><Typography variant="subtitle2">hello.abi</Typography></ListItemText>
                 </ListItem>
                 <ListItem button>
                     <ListItemIcon style={{paddingLeft: 16}}><InsertDriveFile/><Badge badgeContent="cpp" classes={{ badge: classes.cppFile }}/></ListItemIcon>
