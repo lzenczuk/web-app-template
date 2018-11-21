@@ -10,6 +10,7 @@ import List from '@material-ui/core/List';
 import ListItem from '@material-ui/core/ListItem';
 import ListItemText from '@material-ui/core/ListItemText';
 import Checkbox from '@material-ui/core/Checkbox';
+import Paper from '@material-ui/core/Paper';
 
 let projectModel = {
     lists: [
@@ -64,20 +65,22 @@ const TasksList = (props) => {
     let list = props.model;
 
     return <Grid item xs={12} sm={6} md={4} lg={3}>
-        <Toolbar>
-            <Typography variant="h6" color="inherit">
-                {list.name}
-            </Typography>
-        </Toolbar>
-        <List component="nav">{list.tasks.map( task => <Task key={task.id} model={task}/>)}</List>
+        <Paper>
+            <Toolbar>
+                <Typography variant="h6" color="inherit">
+                    {list.name}
+                </Typography>
+            </Toolbar>
+            <List component="nav">{list.tasks.map(task => <Task key={task.id} model={task}/>)}</List>
+        </Paper>
     </Grid>
 };
 
 const Project = (props) => {
     let project = props.model;
 
-    return <Grid container spacing={8}>
-        { project.lists.map( list => <TasksList key={list.id} model={list}/>)}
+    return <Grid container spacing={8} style={{padding: "8px"}}>
+        {project.lists.map(list => <TasksList key={list.id} model={list}/>)}
     </Grid>
 };
 
