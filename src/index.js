@@ -12,7 +12,18 @@ import Button from '@material-ui/core/Button';
 import Paper from '@material-ui/core/Paper';
 
 import {List, ListItem, ListItemText, ListItemIcon, Collapse, Badge} from '@material-ui/core';
-import {Folder, FolderOpen, InsertDriveFile, Delete, CreateNewFolder, NoteAdd, Edit, ArrowRight, ArrowDropDown} from '@material-ui/icons';
+import {
+    Folder as FolderIcon,
+    FolderOpen,
+    InsertDriveFile,
+    Delete,
+    CreateNewFolder,
+    NoteAdd,
+    Edit,
+    ArrowRight,
+    ArrowDropDown
+} from '@material-ui/icons';
+
 
 // theme structure: ThemeOptions in @material-ui/core/styles/createMuiTheme
 const style = theme => ({
@@ -43,137 +54,144 @@ const style = theme => ({
     }
 });
 
-const Inner = withStyles(style)((props) => {
+const File = (props) => {
 
-    let {classes, children, level, parentId} = props;
+    const {name, level} = props;
 
-    if(level===undefined){
-        level=0
+    return (
+        <ListItem button>
+            <ListItemIcon><InsertDriveFile/></ListItemIcon>
+            <ListItemText>{name}</ListItemText>
+        </ListItem>
+    )
+};
+
+const Folder = (props) => {
+
+    let {parentId, name, level, files, open} = props;
+
+    if (files === undefined) {
+        files = []
     }
 
-    if(parentId===undefined){
-        parentId='/' // root
+    if (level === undefined) {
+        level = 0
     }
 
-    let dense = true;
+    const subFiles = files.map(file => {
 
-    let ch = children.map(child => {
-        if (child.type === "FILE") {
-            return (
-                <ListItem button key={parentId+"/"+child.name}>
-                    <ListItemIcon style={{paddingLeft: level*16}}><InsertDriveFile/></ListItemIcon>
-                    <ListItemText>{child.name}</ListItemText>
-                </ListItem>
-            )
-        }else if(child.type==="FOLDER"){
-
-            const folderIcon = child.open===true ? <FolderOpen/> : <Folder/>;
-            const arrowIcon = child.open===true ? <ArrowDropDown/> : <ArrowRight/>;
-
-            return (
-                <Fragment key={parentId+"/"+child.name}>
-                    <ListItem button>
-                        <ListItemIcon style={{paddingLeft: level*16, marginRight: 0}}>{arrowIcon}</ListItemIcon>
-                        <ListItemIcon>{folderIcon}</ListItemIcon>
-                        <ListItemText>{child.name}</ListItemText>
-                    </ListItem>
-                    <Collapse in={child.open}>
-                        <Inner name={child.name} children={child.children} level={level+1} parentId={parentId+"/"+child.name+"/"}/>
-                    </Collapse>
-                </Fragment>
-            )
-        }else{
-            return <span/>
+        switch (file.type) {
+            case "FILE":
+                return <File key={parentId + '/' + file.name} name={file.name} level={level + 1}/>;
+            case "FOLDER":
+                return <Folder key={parentId + '/' + file.name} parentId={parentId + '/' + file.name} name={file.name} level={level + 1} open={file.open} files={file.files}/>;
+            default:
+                throw "Unknown file type: " + file.type
         }
     });
 
-    return <List dense={dense}>
-        {ch}
-    </List>
-});
+    const folderIcon = open===true ? <FolderOpen/> : <FolderIcon/>;
+    const arrowIcon = open===true ? <ArrowDropDown/> : <ArrowRight/>;
+
+    return (
+        <Fragment>
+            <ListItem button>
+                <ListItemIcon>{arrowIcon}</ListItemIcon>
+                <ListItemIcon>{folderIcon}</ListItemIcon>
+                <ListItemText>{name}</ListItemText>
+            </ListItem>
+            <Collapse in={open}>
+                {subFiles}
+            </Collapse>
+        </Fragment>
+    )
+};
+
+const FileTree = (props) => {
+
+    const {files} = props;
+
+    return <Folder key={''} parentId={''} name={'/'} level={0} open={true} files={files}/>
+};
+
 
 let p = {
     projectName: "test",
-    root: {
-        type: "FOLDER",
-        name: "",
-        open: true,
-        children: [
-            {
-                type: "FOLDER",
-                name: "scheduler",
-                open: true,
-                children: [
-                    {
-                        type: "FOLDER",
-                        name: "local",
-                        open: true,
-                        children: [
-                            {
-                                type: "FILE",
-                                name: "local_scheduler.hpp",
-                                content: "Test scheduler.hpp"
-                            },
-                            {
-                                type: "FILE",
-                                name: "local_scheduler.cpp",
-                                content: "Test scheduler.cpp"
-                            }
-                        ]
-                    },
-                    {
-                        type: "FOLDER",
-                        name: "remote",
-                        open: false,
-                        children: [
-                            {
-                                type: "FILE",
-                                name: "remote_scheduler.hpp",
-                                content: "Test scheduler.hpp"
-                            },
-                            {
-                                type: "FILE",
-                                name: "remote_scheduler.cpp",
-                                content: "Test scheduler.cpp"
-                            }
-                        ]
-                    },
-                    {
-                        type: "FILE",
-                        name: "scheduler.hpp",
-                        content: "Test scheduler.hpp"
-                    },
-                    {
-                        type: "FILE",
-                        name: "scheduler.cpp",
-                        content: "Test scheduler.cpp"
-                    }
-                ]
-            },
-            {
-                type: "FOLDER",
-                name: "hello",
-                open: false,
-                children: [
-                    {
-                        type: "FILE",
-                        name: "hello.hpp",
-                        content: "Test hello.hpp"
-                    },
-                    {
-                        type: "FILE",
-                        name: "hello.cpp",
-                        content: "Test hello.cpp"
-                    }
-                ]
-            },
-            {
-                type: "FILE",
-                name: "scheduler.hpp",
-                content: "Test scheduler.hpp"
-            }
-        ]
-    }
+    files: [
+        {
+            type: "FOLDER",
+            name: "scheduler",
+            open: true,
+            files: [
+                {
+                    type: "FOLDER",
+                    name: "local",
+                    open: true,
+                    files: [
+                        {
+                            type: "FILE",
+                            name: "local_scheduler.hpp",
+                            content: "Test scheduler.hpp"
+                        },
+                        {
+                            type: "FILE",
+                            name: "local_scheduler.cpp",
+                            content: "Test scheduler.cpp"
+                        }
+                    ]
+                },
+                {
+                    type: "FOLDER",
+                    name: "remote",
+                    open: false,
+                    files: [
+                        {
+                            type: "FILE",
+                            name: "remote_scheduler.hpp",
+                            content: "Test scheduler.hpp"
+                        },
+                        {
+                            type: "FILE",
+                            name: "remote_scheduler.cpp",
+                            content: "Test scheduler.cpp"
+                        }
+                    ]
+                },
+                {
+                    type: "FILE",
+                    name: "scheduler.hpp",
+                    content: "Test scheduler.hpp"
+                },
+                {
+                    type: "FILE",
+                    name: "scheduler.cpp",
+                    content: "Test scheduler.cpp"
+                }
+            ]
+        },
+        {
+            type: "FOLDER",
+            name: "hello",
+            open: false,
+            files: [
+                {
+                    type: "FILE",
+                    name: "hello.hpp",
+                    content: "Test hello.hpp"
+                },
+                {
+                    type: "FILE",
+                    name: "hello.cpp",
+                    content: "Test hello.cpp"
+                }
+            ]
+        },
+        {
+            type: "FILE",
+            name: "scheduler.hpp",
+            content: "Test scheduler.hpp"
+        }
+    ]
 };
 
 
@@ -188,7 +206,7 @@ const App = () => {
         </AppBar>
         <div style={{marginTop: 48, padding: 8, display: "flex"}}>
             <Paper>
-                <Inner name={p.root.name} children={p.root.children}/>
+                <FileTree files={p.files}/>
             </Paper>
         </div>
     </Fragment>
