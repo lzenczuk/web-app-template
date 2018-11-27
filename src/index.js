@@ -2,7 +2,7 @@ import React, {Fragment} from "react";
 import ReactDOM from "react-dom";
 
 import CssBaseline from '@material-ui/core/CssBaseline';
-import { withStyles } from '@material-ui/core/styles';
+import {withStyles} from '@material-ui/core/styles';
 
 import Typography from '@material-ui/core/Typography';
 
@@ -12,7 +12,7 @@ import Button from '@material-ui/core/Button';
 import Paper from '@material-ui/core/Paper';
 
 import {List, ListItem, ListItemText, ListItemIcon, Collapse, Badge} from '@material-ui/core';
-import {Folder, FolderOpen, InsertDriveFile, Delete, CreateNewFolder, NoteAdd, Edit} from '@material-ui/icons';
+import {Folder, FolderOpen, InsertDriveFile, Delete, CreateNewFolder, NoteAdd, Edit, ArrowRight, ArrowDropDown} from '@material-ui/icons';
 
 // theme structure: ThemeOptions in @material-ui/core/styles/createMuiTheme
 const style = theme => ({
@@ -45,51 +45,137 @@ const style = theme => ({
 
 const Inner = withStyles(style)((props) => {
 
-    const { classes } = props;
+    let {classes, children, level, parentId} = props;
+
+    if(level===undefined){
+        level=0
+    }
+
+    if(parentId===undefined){
+        parentId='/' // root
+    }
 
     let dense = true;
 
+    let ch = children.map(child => {
+        if (child.type === "FILE") {
+            return (
+                <ListItem button key={parentId+"/"+child.name}>
+                    <ListItemIcon style={{paddingLeft: level*16}}><InsertDriveFile/></ListItemIcon>
+                    <ListItemText>{child.name}</ListItemText>
+                </ListItem>
+            )
+        }else if(child.type==="FOLDER"){
+
+            const folderIcon = child.open===true ? <FolderOpen/> : <Folder/>;
+            const arrowIcon = child.open===true ? <ArrowDropDown/> : <ArrowRight/>;
+
+            return (
+                <Fragment key={parentId+"/"+child.name}>
+                    <ListItem button>
+                        <ListItemIcon style={{paddingLeft: level*16, marginRight: 0}}>{arrowIcon}</ListItemIcon>
+                        <ListItemIcon>{folderIcon}</ListItemIcon>
+                        <ListItemText>{child.name}</ListItemText>
+                    </ListItem>
+                    <Collapse in={child.open}>
+                        <Inner name={child.name} children={child.children} level={level+1} parentId={parentId+"/"+child.name+"/"}/>
+                    </Collapse>
+                </Fragment>
+            )
+        }else{
+            return <span/>
+        }
+    });
+
     return <List dense={dense}>
-        <ListItem button>
-            <ListItemIcon><Folder/></ListItemIcon>
-            <ListItemText>scheduler</ListItemText>
-            <div style={{position: "absolute", right: 0}}>
-                <Edit className={classes.contextIcon}/>
-                <CreateNewFolder className={classes.contextIcon}/>
-                <NoteAdd className={classes.contextIcon}/>
-                <Delete className={classes.contextIcon}/>
-            </div>
-        </ListItem>
-        <ListItem button>
-            <ListItemIcon><FolderOpen/></ListItemIcon>
-            <ListItemText>hello</ListItemText>
-        </ListItem>
-        <Collapse in={true}>
-            <List dense={dense}>
-                <ListItem button selected={true}>
-                    <ListItemIcon style={{paddingLeft: 16}}><InsertDriveFile/><Badge badgeContent="abi" classes={{ badge: classes.abiFile }}/></ListItemIcon>
-                    <ListItemText secondary="generated"><Typography variant="subtitle2">hello.abi</Typography></ListItemText>
-                </ListItem>
-                <ListItem button>
-                    <ListItemIcon style={{paddingLeft: 16}}><InsertDriveFile/><Badge badgeContent="cpp" classes={{ badge: classes.cppFile }}/></ListItemIcon>
-                    <ListItemText>hallo.cpp</ListItemText>
-                </ListItem>
-            </List>
-        </Collapse>
-        <ListItem button>
-            <ListItemIcon><InsertDriveFile/></ListItemIcon>
-            <ListItemText>README.md</ListItemText>
-        </ListItem>
-        <ListItem button>
-            <ListItemIcon><InsertDriveFile/></ListItemIcon>
-            <ListItemText>License.txt</ListItemText>
-        </ListItem>
-        <ListItem>
-            <ListItemIcon><Folder/></ListItemIcon>
-            <ListItemText primary="target" secondary="generated build files"/>
-        </ListItem>
+        {ch}
     </List>
 });
+
+let p = {
+    projectName: "test",
+    root: {
+        type: "FOLDER",
+        name: "",
+        open: true,
+        children: [
+            {
+                type: "FOLDER",
+                name: "scheduler",
+                open: true,
+                children: [
+                    {
+                        type: "FOLDER",
+                        name: "local",
+                        open: true,
+                        children: [
+                            {
+                                type: "FILE",
+                                name: "local_scheduler.hpp",
+                                content: "Test scheduler.hpp"
+                            },
+                            {
+                                type: "FILE",
+                                name: "local_scheduler.cpp",
+                                content: "Test scheduler.cpp"
+                            }
+                        ]
+                    },
+                    {
+                        type: "FOLDER",
+                        name: "remote",
+                        open: false,
+                        children: [
+                            {
+                                type: "FILE",
+                                name: "remote_scheduler.hpp",
+                                content: "Test scheduler.hpp"
+                            },
+                            {
+                                type: "FILE",
+                                name: "remote_scheduler.cpp",
+                                content: "Test scheduler.cpp"
+                            }
+                        ]
+                    },
+                    {
+                        type: "FILE",
+                        name: "scheduler.hpp",
+                        content: "Test scheduler.hpp"
+                    },
+                    {
+                        type: "FILE",
+                        name: "scheduler.cpp",
+                        content: "Test scheduler.cpp"
+                    }
+                ]
+            },
+            {
+                type: "FOLDER",
+                name: "hello",
+                open: false,
+                children: [
+                    {
+                        type: "FILE",
+                        name: "hello.hpp",
+                        content: "Test hello.hpp"
+                    },
+                    {
+                        type: "FILE",
+                        name: "hello.cpp",
+                        content: "Test hello.cpp"
+                    }
+                ]
+            },
+            {
+                type: "FILE",
+                name: "scheduler.hpp",
+                content: "Test scheduler.hpp"
+            }
+        ]
+    }
+};
+
 
 const App = () => {
     return <Fragment>
@@ -102,7 +188,7 @@ const App = () => {
         </AppBar>
         <div style={{marginTop: 48, padding: 8, display: "flex"}}>
             <Paper>
-                <Inner/>
+                <Inner name={p.root.name} children={p.root.children}/>
             </Paper>
         </div>
     </Fragment>
