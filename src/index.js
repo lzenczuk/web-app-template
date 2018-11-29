@@ -25,50 +25,74 @@ import {
 } from '@material-ui/icons';
 
 
-// theme structure: ThemeOptions in @material-ui/core/styles/createMuiTheme
-const style = theme => ({
-    abiFile: {
-        top: 11,
-        color: "white",
-        backgroundColor: "green",
-        fontSize: "0.5rem",
-        width: 15,
-        height: 15,
-        right: -4,
+function generateSubElements(files, parentId, level) {
+    return files.map(file => {
+
+        switch (file.type) {
+            case "FILE":
+                return <File key={parentId + '/' + file.name} name={file.name} level={level + 1}/>;
+            case "FOLDER":
+                return <Folder key={parentId + '/' + file.name} parentId={parentId + '/' + file.name} name={file.name}
+                               level={level + 1} open={file.open} files={file.files}/>;
+            default:
+                throw "Unknown file type: " + file.type
+        }
+    });
+}
+
+// ------------------------------- File ------------------------------
+
+const fileStyle = theme => ({
+    listItemRoot: {
+            padding: 4,
     },
-    cppFile: {
-        top: 11,
-        color: "white",
-        backgroundColor: "red",
-        fontSize: "0.5rem",
-        width: 15,
-        height: 15,
-        right: -4,
+    fileIconRoot: {
+            margin: 0,
+            marginRight: 4,
     },
-    contextIcon: {
-        fontSize: "1rem",
-        color: theme.palette.action.active,
-        '&:hover': {
-            color: theme.palette.secondary.main,
-        },
+    textItemRoot: {
+        padding: 0,
+        paddingRight: 4,
+    },
+    textItemPrimary: {
+        fontSize: "0.75rem",
     }
 });
 
-const File = (props) => {
+const File = withStyles(fileStyle)((props) => {
 
-    const {name, level} = props;
+    const {name, level, classes} = props;
 
     return (
-        <ListItem button>
-            <ListItemIcon><InsertDriveFile/></ListItemIcon>
-            <ListItemText>{name}</ListItemText>
+        <ListItem button classes={{root: classes.listItemRoot}} style={{paddingLeft: level*16}}>
+            <ListItemIcon classes={{root: classes.fileIconRoot}}><InsertDriveFile/></ListItemIcon>
+            <ListItemText classes={{root: classes.textItemRoot, primary: classes.textItemPrimary}}>{name}</ListItemText>
         </ListItem>
     )
-};
+});
 
-const Folder = (props) => {
+// ------------------------------- Folder ------------------------------
 
-    let {parentId, name, level, files, open} = props;
+const folderStyle = theme => ({
+    listItemRoot: {
+        padding: 4,
+    },
+    iconItemRoot: {
+        margin: 0,
+        marginRight: 4,
+    },
+    textItemRoot: {
+        padding: 0,
+        paddingRight: 4,
+    },
+    textItemPrimary: {
+        fontSize: "0.75rem",
+    }
+});
+
+const Folder = withStyles(folderStyle)((props) => {
+
+    let {parentId, name, level, files, open, classes} = props;
 
     if (files === undefined) {
         files = []
@@ -78,40 +102,37 @@ const Folder = (props) => {
         level = 0
     }
 
-    const subFiles = files.map(file => {
-
-        switch (file.type) {
-            case "FILE":
-                return <File key={parentId + '/' + file.name} name={file.name} level={level + 1}/>;
-            case "FOLDER":
-                return <Folder key={parentId + '/' + file.name} parentId={parentId + '/' + file.name} name={file.name} level={level + 1} open={file.open} files={file.files}/>;
-            default:
-                throw "Unknown file type: " + file.type
-        }
-    });
+    const subFiles = generateSubElements(files, parentId, level);
 
     const folderIcon = open===true ? <FolderOpen/> : <FolderIcon/>;
     const arrowIcon = open===true ? <ArrowDropDown/> : <ArrowRight/>;
 
     return (
         <Fragment>
-            <ListItem button>
-                <ListItemIcon>{arrowIcon}</ListItemIcon>
-                <ListItemIcon>{folderIcon}</ListItemIcon>
-                <ListItemText>{name}</ListItemText>
+            <ListItem button classes={{root: classes.listItemRoot}} style={{paddingLeft: level*16}}>
+                <ListItemIcon classes={{root: classes.iconItemRoot}}>{arrowIcon}</ListItemIcon>
+                <ListItemIcon classes={{root: classes.iconItemRoot}}>{folderIcon}</ListItemIcon>
+                <ListItemText classes={{root: classes.textItemRoot, primary: classes.textItemPrimary}}>{name}</ListItemText>
             </ListItem>
             <Collapse in={open}>
                 {subFiles}
             </Collapse>
         </Fragment>
     )
-};
+});
+
+// ------------------------------- FileTree ------------------------------
 
 const FileTree = (props) => {
 
     const {files} = props;
 
-    return <Folder key={''} parentId={''} name={'/'} level={0} open={true} files={files}/>
+    const subFiles = generateSubElements(files, '', 0);
+
+    return (<Fragment>
+        {subFiles}
+    </Fragment>)
+
 };
 
 
