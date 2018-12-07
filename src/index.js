@@ -24,8 +24,13 @@ import {
     ArrowDropDown
 } from '@material-ui/icons';
 
+import { toggleFolder } from "./actions/actions"
+import { connect } from 'react-redux'
+import { Provider } from 'react-redux'
+import store from "./stores/stores";
 
-function generateSubElements(files, parentId, level) {
+
+function generateSubElements(files, parentId, level, onFolderClick) {
     return files.map(file => {
 
         switch (file.type) {
@@ -33,7 +38,7 @@ function generateSubElements(files, parentId, level) {
                 return <File key={parentId + '/' + file.name} name={file.name} level={level + 1}/>;
             case "FOLDER":
                 return <Folder key={parentId + '/' + file.name} parentId={parentId + '/' + file.name} name={file.name}
-                               level={level + 1} open={file.open} files={file.files}/>;
+                               level={level + 1} open={file.open} files={file.files} onFolderClick={onFolderClick}/>;
             default:
                 throw "Unknown file type: " + file.type
         }
@@ -61,10 +66,10 @@ const fileStyle = theme => ({
 
 const File = withStyles(fileStyle)((props) => {
 
-    const {name, level, classes} = props;
+    const {name, level, classes, onClick } = props;
 
     return (
-        <ListItem button classes={{root: classes.listItemRoot}} style={{paddingLeft: level*16}}>
+        <ListItem button classes={{root: classes.listItemRoot}} style={{paddingLeft: level*16}} onClick={onClick}>
             <ListItemIcon classes={{root: classes.fileIconRoot}}><InsertDriveFile/></ListItemIcon>
             <ListItemText classes={{root: classes.textItemRoot, primary: classes.textItemPrimary}}>{name}</ListItemText>
         </ListItem>
@@ -92,7 +97,7 @@ const folderStyle = theme => ({
 
 const Folder = withStyles(folderStyle)((props) => {
 
-    let {parentId, name, level, files, open, classes} = props;
+    let {parentId, name, level, files, open, classes, onFolderClick} = props;
 
     if (files === undefined) {
         files = []
@@ -102,15 +107,18 @@ const Folder = withStyles(folderStyle)((props) => {
         level = 0
     }
 
-    const subFiles = generateSubElements(files, parentId, level);
+    const subFiles = generateSubElements(files, parentId, level, onFolderClick);
 
     const folderIcon = open===true ? <FolderOpen/> : <FolderIcon/>;
     const arrowIcon = open===true ? <ArrowDropDown/> : <ArrowRight/>;
 
+    const folderClick = () => onFolderClick(parentId);
+
+
     return (
         <Fragment>
             <ListItem button classes={{root: classes.listItemRoot}} style={{paddingLeft: level*16}}>
-                <ListItemIcon classes={{root: classes.iconItemRoot}}>{arrowIcon}</ListItemIcon>
+                <ListItemIcon classes={{root: classes.iconItemRoot}} onClick={folderClick}>{arrowIcon}</ListItemIcon>
                 <ListItemIcon classes={{root: classes.iconItemRoot}}>{folderIcon}</ListItemIcon>
                 <ListItemText classes={{root: classes.textItemRoot, primary: classes.textItemPrimary}}>{name}</ListItemText>
             </ListItem>
@@ -125,9 +133,9 @@ const Folder = withStyles(folderStyle)((props) => {
 
 const FileTree = (props) => {
 
-    const {files} = props;
+    const {files, onFolderClick} = props;
 
-    const subFiles = generateSubElements(files, '', 0);
+    const subFiles = generateSubElements(files, '', 0, onFolderClick);
 
     return (<Fragment>
         {subFiles}
@@ -135,102 +143,43 @@ const FileTree = (props) => {
 
 };
 
+// ---------------------------- Containers --------------------------------
 
-let p = {
-    projectName: "test",
-    files: [
-        {
-            type: "FOLDER",
-            name: "scheduler",
-            open: true,
-            files: [
-                {
-                    type: "FOLDER",
-                    name: "local",
-                    open: true,
-                    files: [
-                        {
-                            type: "FILE",
-                            name: "local_scheduler.hpp",
-                            content: "Test scheduler.hpp"
-                        },
-                        {
-                            type: "FILE",
-                            name: "local_scheduler.cpp",
-                            content: "Test scheduler.cpp"
-                        }
-                    ]
-                },
-                {
-                    type: "FOLDER",
-                    name: "remote",
-                    open: false,
-                    files: [
-                        {
-                            type: "FILE",
-                            name: "remote_scheduler.hpp",
-                            content: "Test scheduler.hpp"
-                        },
-                        {
-                            type: "FILE",
-                            name: "remote_scheduler.cpp",
-                            content: "Test scheduler.cpp"
-                        }
-                    ]
-                },
-                {
-                    type: "FILE",
-                    name: "scheduler.hpp",
-                    content: "Test scheduler.hpp"
-                },
-                {
-                    type: "FILE",
-                    name: "scheduler.cpp",
-                    content: "Test scheduler.cpp"
-                }
-            ]
-        },
-        {
-            type: "FOLDER",
-            name: "hello",
-            open: false,
-            files: [
-                {
-                    type: "FILE",
-                    name: "hello.hpp",
-                    content: "Test hello.hpp"
-                },
-                {
-                    type: "FILE",
-                    name: "hello.cpp",
-                    content: "Test hello.cpp"
-                }
-            ]
-        },
-        {
-            type: "FILE",
-            name: "scheduler.hpp",
-            content: "Test scheduler.hpp"
+// In my case I don't do anything with state (filtering, mapping...)
+const mapStateToProps = state => state;
+
+const mapDispatchToProps = dispatch => {
+    return {
+        onFolderClick: pathArray => {
+            console.log("---------------> before dispatch: "+pathArray);
+            dispatch(toggleFolder(pathArray))
         }
-    ]
+    }
 };
+
+const FileTreeContainer = connect(
+    mapStateToProps,
+    mapDispatchToProps
+)(FileTree);
 
 
 const App = () => {
-    return <Fragment>
-        <CssBaseline/>
-        <AppBar>
-            <ToolBar variant="dense">
-                <Typography variant="h6" style={{flexGrow: 1}}>Hello</Typography>
-                <Button>Login</Button>
-            </ToolBar>
-        </AppBar>
-        <div style={{marginTop: 48, padding: 8, display: "flex"}}>
-            <Paper>
-                <FileTree files={p.files}/>
-            </Paper>
-        </div>
-    </Fragment>
+    return <Provider store={store}>
+        <Fragment>
+            <CssBaseline/>
+            <AppBar>
+                <ToolBar variant="dense">
+                    <Typography variant="h6" style={{flexGrow: 1}}>Hello</Typography>
+                    <Button>Login</Button>
+                </ToolBar>
+            </AppBar>
+            <div style={{marginTop: 48, padding: 8, display: "flex"}}>
+                <Paper>
+                    <FileTreeContainer/>
+                </Paper>
+            </div>
+        </Fragment>
+    </Provider>
 };
 
 ReactDOM.render(<App/>, document.getElementById("index"));
