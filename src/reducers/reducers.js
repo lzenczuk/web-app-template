@@ -1,5 +1,5 @@
 import _ from "lodash";
-import {OPEN_FOLDER_CONTEXT_MENU, TOGGLE_FOLDER} from "../actions/actions"
+import {CLOSE_CONTEXT_MENU, OPEN_FILE_CONTEXT_MENU, OPEN_FOLDER_CONTEXT_MENU, TOGGLE_FOLDER} from "../actions/actions"
 
 let initState = {
     projectName: "test",
@@ -140,6 +140,30 @@ const fileManager = (state=initState, action) => {
 
             return newState;
         }
+
+        case OPEN_FILE_CONTEXT_MENU: {
+
+            let newState = _.cloneDeep(state);
+
+            let { path, top, left } = action;
+
+            newState.fileManagerContextMenu.visible = true;
+            newState.fileManagerContextMenu.parentId = path;
+            newState.fileManagerContextMenu.top = top;
+            newState.fileManagerContextMenu.left = left;
+            newState.fileManagerContextMenu.type = "FILE_CONTEXT_MENU";
+
+            return newState;
+        }
+
+        case CLOSE_CONTEXT_MENU: {
+
+            let newState = _.cloneDeep(state);
+            newState.fileManagerContextMenu.visible = false;
+
+            return newState;
+        }
+
         default:
             return state
     }

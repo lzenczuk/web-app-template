@@ -24,21 +24,21 @@ import {
     ArrowDropDown
 } from '@material-ui/icons';
 
-import { toggleFolder, openFolderContextMenu } from "./actions/actions"
+import {toggleFolder, openFolderContextMenu, closeContextMenu, openFileContextMenu} from "./actions/actions"
 import { connect } from 'react-redux'
 import { Provider } from 'react-redux'
 import store from "./stores/stores";
 
 
-function generateSubElements(files, parentId, level, onFolderClick, onFolderContextMenuClick) {
+function generateSubElements(files, parentId, level, onFolderClick, onFolderContextMenuClick, onFileContextMenuClick) {
     return files.map(file => {
 
         switch (file.type) {
             case "FILE":
-                return <File key={parentId + '/' + file.name} name={file.name} level={level + 1}/>;
+                return <File key={parentId + '/' + file.name} parentId={parentId + '/' + file.name} name={file.name} level={level + 1} onFileContextMenuClick={onFileContextMenuClick}/>;
             case "FOLDER":
                 return <Folder key={parentId + '/' + file.name} parentId={parentId + '/' + file.name} name={file.name}
-                               level={level + 1} open={file.open} files={file.files} onFolderClick={onFolderClick} onFolderContextMenuClick={onFolderContextMenuClick}/>;
+                               level={level + 1} open={file.open} files={file.files} onFolderClick={onFolderClick} onFolderContextMenuClick={onFolderContextMenuClick} onFileContextMenuClick={onFileContextMenuClick}/>;
             default:
                 throw "Unknown file type: " + file.type
         }
@@ -66,10 +66,15 @@ const fileStyle = theme => ({
 
 const File = withStyles(fileStyle)((props) => {
 
-    const {name, level, classes, onClick } = props;
+    const {name, level, classes, parentId, onFileContextMenuClick} = props;
+
+    const onRightClick = (e) => {
+        e.preventDefault();
+        onFileContextMenuClick(parentId, e.clientY, e.clientX)
+    };
 
     return (
-        <ListItem button classes={{root: classes.listItemRoot}} style={{paddingLeft: level*16}} onClick={onClick}>
+        <ListItem button classes={{root: classes.listItemRoot}} style={{paddingLeft: level*20}} onContextMenu={onRightClick}>
             <ListItemIcon classes={{root: classes.fileIconRoot}}><InsertDriveFile/></ListItemIcon>
             <ListItemText classes={{root: classes.textItemRoot, primary: classes.textItemPrimary}}>{name}</ListItemText>
         </ListItem>
@@ -97,7 +102,7 @@ const folderStyle = theme => ({
 
 const Folder = withStyles(folderStyle)((props) => {
 
-    let {parentId, name, level, files, open, classes, onFolderClick, onFolderContextMenuClick} = props;
+    let {parentId, name, level, files, open, classes, onFolderClick, onFolderContextMenuClick, onFileContextMenuClick} = props;
 
     if (files === undefined) {
         files = []
@@ -107,7 +112,7 @@ const Folder = withStyles(folderStyle)((props) => {
         level = 0
     }
 
-    const subFiles = generateSubElements(files, parentId, level, onFolderClick, onFolderContextMenuClick);
+    const subFiles = generateSubElements(files, parentId, level, onFolderClick, onFolderContextMenuClick, onFileContextMenuClick);
 
     const folderIcon = open===true ? <FolderOpen/> : <FolderIcon/>;
     const arrowIcon = open===true ? <ArrowDropDown/> : <ArrowRight/>;
@@ -121,8 +126,8 @@ const Folder = withStyles(folderStyle)((props) => {
 
     return (
         <Fragment>
-            <ListItem button classes={{root: classes.listItemRoot}} style={{paddingLeft: level*16}} onContextMenu={folderContextClick}>
-                <ListItemIcon classes={{root: classes.iconItemRoot}} onClick={folderClick}>{arrowIcon}</ListItemIcon>
+            <ListItem button classes={{root: classes.listItemRoot}} style={{paddingLeft: level*16}} onContextMenu={folderContextClick} onClick={folderClick}>
+                <ListItemIcon classes={{root: classes.iconItemRoot}}>{arrowIcon}</ListItemIcon>
                 <ListItemIcon classes={{root: classes.iconItemRoot}}>{folderIcon}</ListItemIcon>
                 <ListItemText classes={{root: classes.textItemRoot, primary: classes.textItemPrimary}}>{name}</ListItemText>
             </ListItem>
@@ -137,9 +142,9 @@ const Folder = withStyles(folderStyle)((props) => {
 
 const FileTree = (props) => {
 
-    const {files, onFolderClick, onFolderContextMenuClick} = props;
+    const {files, onFolderClick, onFolderContextMenuClick, onFileContextMenuClick} = props;
 
-    const subFiles = generateSubElements(files, '', 0, onFolderClick, onFolderContextMenuClick);
+    const subFiles = generateSubElements(files, '', 0, onFolderClick, onFolderContextMenuClick, onFileContextMenuClick);
 
     return (<Fragment>
         {subFiles}
@@ -155,12 +160,13 @@ const mapStateToProps = state => state;
 const mapDispatchToProps = dispatch => {
     return {
         onFolderClick: pathArray => {
-            console.log("---------------> before dispatch: "+pathArray);
             dispatch(toggleFolder(pathArray))
         },
         onFolderContextMenuClick: (path, top, left) => {
-            console.log("---------------> context menu: "+path);
             dispatch(openFolderContextMenu(path, top, left))
+        },
+        onFileContextMenuClick: (path, top, left) => {
+            dispatch(openFileContextMenu(path, top, left))
         }
     }
 };
@@ -173,11 +179,43 @@ const FileTreeContainer = connect(
 // =========================== context menu =================================
 
 const FileManagerContextMenu = (props) => {
-    const { visible, top, left }  = props;
+    const { visible, top, left, type, onCloseContextMenuClick}  = props;
+
+    const onClick = (e) => {
+        e.preventDefault();
+        onCloseContextMenuClick();
+    };
+
+    let menu = <div/>;
+
+    switch (type) {
+        case "FOLDER_CONTEXT_MENU":
+            menu = <Paper style={{ position: 'absolute', top: top, left: left, zIndex: 1001}}>
+                <List>
+                    <ListItem button ><ListItemText>New folder</ListItemText></ListItem>
+                    <ListItem button ><ListItemText>New file</ListItemText></ListItem>
+                    <ListItem button ><ListItemText>Rename</ListItemText></ListItem>
+                    <ListItem button ><ListItemText>Delete</ListItemText></ListItem>
+                </List>
+            </Paper>;
+
+            break;
+
+        case "FILE_CONTEXT_MENU":
+            menu = <Paper style={{ position: 'absolute', top: top, left: left, zIndex: 1001}}>
+                <List>
+                    <ListItem button ><ListItemText>Rename</ListItemText></ListItem>
+                    <ListItem button ><ListItemText>Delete</ListItemText></ListItem>
+                </List>
+            </Paper>;
+
+            break;
+
+    }
 
     if(visible){
-        return <div style={{ position: 'absolute', top: 0, bottom: 0, left: 0, right: 0 }}>
-            <Paper style={{ position: 'absolute', top: top, left: left}}>This text is in a paper</Paper>
+        return <div style={{ position: 'absolute', top: 0, bottom: 0, left: 0, right: 0, zIndex: 1000}} onClick={onClick} onContextMenu={onClick}>
+            {menu}
         </div>
     }else{
         return <div/>
@@ -190,10 +228,9 @@ const FileManagerContextMenuContainer = connect(
     state => state.fileManagerContextMenu,
     dispatch => {
         return {
-            /*onFolderClick: pathArray => {
-                console.log("---------------> before dispatch: "+pathArray);
-                dispatch(toggleFolder(pathArray))
-            }*/
+            onCloseContextMenuClick: () => {
+                dispatch(closeContextMenu())
+            }
         }
     }
 )(FileManagerContextMenu);
