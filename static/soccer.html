@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Soccer</title>
+</head>
+<body>
+<svg width="400" height="560" id="board">
+
+    <rect width="480" height="560" fill="green"/>
+
+
+
+</svg>
+<script type="application/javascript">
+    function bgRow(svg, step, startY) {
+        for(let i=0; i<9; i++){
+            let circleElement = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+            circleElement.setAttribute("r", "2");
+            circleElement.setAttribute("cx", ""+(step+i*step));
+            circleElement.setAttribute("cy", ""+startY);
+            circleElement.setAttribute("fill", "black");
+            circleElement.setAttribute("fill-opacity", "0.5");
+
+            svg.appendChild(circleElement)
+        }
+    }
+
+    function bgRec(svg, step) {
+        for(let i=0; i<11; i++){
+            bgRow(svg, step, step*2+(step*i))
+        }
+    }
+
+    function bgTopGoal(svg, step) {
+        for(let i=0; i<3; i++){
+            let circleElement = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+            circleElement.setAttribute("r", "2");
+            circleElement.setAttribute("cx", ""+(step+(step*3)+i*step));
+            circleElement.setAttribute("cy", ""+step);
+            circleElement.setAttribute("fill", "black");
+            circleElement.setAttribute("fill-opacity", "0.5");
+
+            svg.appendChild(circleElement)
+        }
+    }
+
+    function bgBottomGoal(svg, step) {
+        for(let i=0; i<3; i++){
+            let circleElement = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+            circleElement.setAttribute("r", "2");
+            circleElement.setAttribute("cx", ""+(step+(step*3)+i*step));
+            circleElement.setAttribute("cy", ""+step*13);
+            circleElement.setAttribute("fill", "black");
+            circleElement.setAttribute("fill-opacity", "0.5");
+
+            svg.appendChild(circleElement)
+        }
+    }
+
+    function bgLine(svg, x1, y1, x2, y2, opt=1){
+        let line = document.createElementNS("http://www.w3.org/2000/svg", "line");
+        line.setAttribute("x1", ""+x1);
+        line.setAttribute("y1", ""+y1);
+        line.setAttribute("x2", ""+x2);
+        line.setAttribute("y2", ""+y2);
+        line.setAttribute("stroke-opacity", ""+opt);
+        line.setAttribute("style", "stroke:white;stroke-width:6;stroke-linecap:round");
+
+        svg.appendChild(line)
+    }
+
+    function bgCircle(svg, step){
+        let circleElement = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+        circleElement.setAttribute("r", ""+Math.sqrt(step*step+step*step));
+        circleElement.setAttribute("cx", ""+step*5);
+        circleElement.setAttribute("cy", ""+step*7);
+        circleElement.setAttribute("fill", "none");
+        circleElement.setAttribute("stroke-opacity", "0.25");
+        circleElement.setAttribute("style", "stroke:white;stroke-width:6;stroke-linecap:round");
+
+        svg.appendChild(circleElement)
+    }
+
+    let step = 40;
+    let svg = document.getElementById("board");
+
+    // left
+    bgLine(svg, step, step+step, step, step+step*11);
+    // top right
+    bgLine(svg, step, step+step, step*4, step+step);
+    // top right goal
+    bgLine(svg, step*4, step+step, step*4, step);
+    // top goal
+    bgLine(svg, step*4, step, step*6, step);
+    // top left goal
+    bgLine(svg, step*6, step, step*6, step+step);
+    // top left
+    bgLine(svg, step*6, step+step, step*9, step+step);
+    // right
+    bgLine(svg, step*9, step+step, step*9, step+step*11);
+    // bottom right
+    bgLine(svg, step, step+step*11, step*4, step+step*11);
+    // bottom right goal
+    bgLine(svg, step*4, step+step*11, step*4, step+step*12);
+    // bottom goal
+    bgLine(svg, step*4, step+step*12, step*6, step+step*12);
+    // bottom left goal
+    bgLine(svg, step*6, step+step*12, step*6, step+step*11);
+    // bottom left
+    bgLine(svg, step*6, step+step*11, step*9, step+step*11);
+
+    // top goal line
+    bgLine(svg, step*4, step+step, step*6, step+step, 0.25);
+    // bottom goal line
+    bgLine(svg, step*4, step+step*11, step*6, step+step*11, 0.25);
+
+    // mid line
+    bgLine(svg, step, step+step*6, step*9, step+step*6, 0.25);
+    // mid circle
+    bgCircle(svg, step)
+
+    bgRec(svg, step);
+    bgTopGoal(svg, step);
+    bgBottomGoal(svg, step);
+
+</script>
+</body>
+</html>
