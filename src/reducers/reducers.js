@@ -1,8 +1,15 @@
 import _ from "lodash";
-import { TOGGLE_FOLDER } from "../actions/actions"
+import {OPEN_FOLDER_CONTEXT_MENU, TOGGLE_FOLDER} from "../actions/actions"
 
 let initState = {
     projectName: "test",
+    fileManagerContextMenu: {
+        visible: false,
+        top: 0,
+        left: 0,
+        type: "FOLDER_CONTEXT_MENU",
+        parentId: null
+    },
     files: [
         {
             type: "FOLDER",
@@ -83,7 +90,7 @@ let initState = {
 const fileManager = (state=initState, action) => {
 
     switch (action.type) {
-        case TOGGLE_FOLDER:
+        case TOGGLE_FOLDER: {
 
             let newState = _.cloneDeep(state);
 
@@ -93,17 +100,17 @@ const fileManager = (state=initState, action) => {
             const pathArray = path.split("/");
             let index = 0;
 
-            while (index<pathArray.length) {
+            while (index < pathArray.length) {
                 const p = pathArray[index];
 
-                for(let fIndex = 0; fIndex<root.length; fIndex++){
+                for (let fIndex = 0; fIndex < root.length; fIndex++) {
                     let element = root[fIndex];
 
-                    if(element.type==='FOLDER' && element.name===p){
+                    if (element.type === 'FOLDER' && element.name === p) {
 
-                        if(index===pathArray.length-1){
+                        if (index === pathArray.length - 1) {
                             element.open = !element.open;
-                        }else{
+                        } else {
                             element.open = true;
                         }
                         root = element.files;
@@ -117,7 +124,22 @@ const fileManager = (state=initState, action) => {
 
 
             return newState;
+        }
 
+        case OPEN_FOLDER_CONTEXT_MENU: {
+
+            let newState = _.cloneDeep(state);
+
+            let { path, top, left } = action;
+
+            newState.fileManagerContextMenu.visible = true;
+            newState.fileManagerContextMenu.parentId = path;
+            newState.fileManagerContextMenu.top = top;
+            newState.fileManagerContextMenu.left = left;
+            newState.fileManagerContextMenu.type = "FOLDER_CONTEXT_MENU";
+
+            return newState;
+        }
         default:
             return state
     }

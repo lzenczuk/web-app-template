@@ -24,13 +24,13 @@ import {
     ArrowDropDown
 } from '@material-ui/icons';
 
-import { toggleFolder } from "./actions/actions"
+import { toggleFolder, openFolderContextMenu } from "./actions/actions"
 import { connect } from 'react-redux'
 import { Provider } from 'react-redux'
 import store from "./stores/stores";
 
 
-function generateSubElements(files, parentId, level, onFolderClick) {
+function generateSubElements(files, parentId, level, onFolderClick, onFolderContextMenuClick) {
     return files.map(file => {
 
         switch (file.type) {
@@ -38,7 +38,7 @@ function generateSubElements(files, parentId, level, onFolderClick) {
                 return <File key={parentId + '/' + file.name} name={file.name} level={level + 1}/>;
             case "FOLDER":
                 return <Folder key={parentId + '/' + file.name} parentId={parentId + '/' + file.name} name={file.name}
-                               level={level + 1} open={file.open} files={file.files} onFolderClick={onFolderClick}/>;
+                               level={level + 1} open={file.open} files={file.files} onFolderClick={onFolderClick} onFolderContextMenuClick={onFolderContextMenuClick}/>;
             default:
                 throw "Unknown file type: " + file.type
         }
@@ -97,7 +97,7 @@ const folderStyle = theme => ({
 
 const Folder = withStyles(folderStyle)((props) => {
 
-    let {parentId, name, level, files, open, classes, onFolderClick} = props;
+    let {parentId, name, level, files, open, classes, onFolderClick, onFolderContextMenuClick} = props;
 
     if (files === undefined) {
         files = []
@@ -107,17 +107,21 @@ const Folder = withStyles(folderStyle)((props) => {
         level = 0
     }
 
-    const subFiles = generateSubElements(files, parentId, level, onFolderClick);
+    const subFiles = generateSubElements(files, parentId, level, onFolderClick, onFolderContextMenuClick);
 
     const folderIcon = open===true ? <FolderOpen/> : <FolderIcon/>;
     const arrowIcon = open===true ? <ArrowDropDown/> : <ArrowRight/>;
 
     const folderClick = () => onFolderClick(parentId);
 
+    const folderContextClick = (e) => {
+        e.preventDefault();
+        onFolderContextMenuClick(parentId, e.clientY, e.clientX)
+    };
 
     return (
         <Fragment>
-            <ListItem button classes={{root: classes.listItemRoot}} style={{paddingLeft: level*16}}>
+            <ListItem button classes={{root: classes.listItemRoot}} style={{paddingLeft: level*16}} onContextMenu={folderContextClick}>
                 <ListItemIcon classes={{root: classes.iconItemRoot}} onClick={folderClick}>{arrowIcon}</ListItemIcon>
                 <ListItemIcon classes={{root: classes.iconItemRoot}}>{folderIcon}</ListItemIcon>
                 <ListItemText classes={{root: classes.textItemRoot, primary: classes.textItemPrimary}}>{name}</ListItemText>
@@ -133,9 +137,9 @@ const Folder = withStyles(folderStyle)((props) => {
 
 const FileTree = (props) => {
 
-    const {files, onFolderClick} = props;
+    const {files, onFolderClick, onFolderContextMenuClick} = props;
 
-    const subFiles = generateSubElements(files, '', 0, onFolderClick);
+    const subFiles = generateSubElements(files, '', 0, onFolderClick, onFolderContextMenuClick);
 
     return (<Fragment>
         {subFiles}
@@ -153,6 +157,10 @@ const mapDispatchToProps = dispatch => {
         onFolderClick: pathArray => {
             console.log("---------------> before dispatch: "+pathArray);
             dispatch(toggleFolder(pathArray))
+        },
+        onFolderContextMenuClick: (path, top, left) => {
+            console.log("---------------> context menu: "+path);
+            dispatch(openFolderContextMenu(path, top, left))
         }
     }
 };
@@ -162,11 +170,42 @@ const FileTreeContainer = connect(
     mapDispatchToProps
 )(FileTree);
 
+// =========================== context menu =================================
+
+const FileManagerContextMenu = (props) => {
+    const { visible, top, left }  = props;
+
+    if(visible){
+        return <div style={{ position: 'absolute', top: 0, bottom: 0, left: 0, right: 0 }}>
+            <Paper style={{ position: 'absolute', top: top, left: left}}>This text is in a paper</Paper>
+        </div>
+    }else{
+        return <div/>
+    }
+};
+
+// --------------------------------------------------------------------------------
+
+const FileManagerContextMenuContainer = connect(
+    state => state.fileManagerContextMenu,
+    dispatch => {
+        return {
+            /*onFolderClick: pathArray => {
+                console.log("---------------> before dispatch: "+pathArray);
+                dispatch(toggleFolder(pathArray))
+            }*/
+        }
+    }
+)(FileManagerContextMenu);
+
+
+// =========================== Main app =====================================
 
 const App = () => {
     return <Provider store={store}>
         <Fragment>
             <CssBaseline/>
+            <FileManagerContextMenuContainer/>
             <AppBar>
                 <ToolBar variant="dense">
                     <Typography variant="h6" style={{flexGrow: 1}}>Hello</Typography>
