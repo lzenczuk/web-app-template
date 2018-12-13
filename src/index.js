@@ -10,6 +10,12 @@ import AppBar from '@material-ui/core/AppBar';
 import ToolBar from '@material-ui/core/Toolbar';
 import Button from '@material-ui/core/Button';
 import Paper from '@material-ui/core/Paper';
+import TextField from '@material-ui/core/TextField';
+import Dialog from '@material-ui/core/Dialog';
+import DialogActions from '@material-ui/core/DialogActions';
+import DialogContent from '@material-ui/core/DialogContent';
+import DialogContentText from '@material-ui/core/DialogContentText';
+import DialogTitle from '@material-ui/core/DialogTitle';
 
 import {List, ListItem, ListItemText, ListItemIcon, Collapse, Badge} from '@material-ui/core';
 import {
@@ -24,7 +30,13 @@ import {
     ArrowDropDown
 } from '@material-ui/icons';
 
-import {toggleFolder, openFolderContextMenu, closeContextMenu, openFileContextMenu} from "./actions/actions"
+import {
+    toggleFolder,
+    openFolderContextMenu,
+    closeContextMenu,
+    openFileContextMenu,
+    renameSelectedFile
+} from "./actions/actions"
 import { connect } from 'react-redux'
 import { Provider } from 'react-redux'
 import store from "./stores/stores";
@@ -143,11 +155,35 @@ const Folder = withStyles(folderStyle)((props) => {
 const FileTree = (props) => {
 
     const {files, onFolderClick, onFolderContextMenuClick, onFileContextMenuClick} = props;
+    const { renameFileDialog } = props;
 
     const subFiles = generateSubElements(files, '', 0, onFolderClick, onFolderContextMenuClick, onFileContextMenuClick);
 
     return (<Fragment>
         {subFiles}
+        <Dialog open={renameFileDialog.open}>
+            <DialogTitle>Rename file</DialogTitle>
+            <DialogContent>
+                <DialogContentText>You up to rename file {renameFileDialog.name}</DialogContentText>
+                <TextField
+                    autoFocus
+                    margin="dense"
+                    id="name"
+                    label="New file name"
+                    type="email"
+                    fullWidth
+                    value={renameFileDialog.name}
+                />
+            </DialogContent>
+            <DialogActions>
+                <Button color="primary">
+                    Rename
+                </Button>
+                <Button color="primary">
+                    Cancel
+                </Button>
+            </DialogActions>
+        </Dialog>
     </Fragment>)
 
 };
@@ -179,11 +215,16 @@ const FileTreeContainer = connect(
 // =========================== context menu =================================
 
 const FileManagerContextMenu = (props) => {
-    const { visible, top, left, type, onCloseContextMenuClick}  = props;
+    const { visible, top, left, type, onCloseContextMenuClick }  = props;
+    const { onRenameFileSelected } = props;
 
     const onClick = (e) => {
         e.preventDefault();
         onCloseContextMenuClick();
+    };
+
+    const onRenameFileClicked = () => {
+        onRenameFileSelected()
     };
 
     let menu = <div/>;
@@ -204,7 +245,7 @@ const FileManagerContextMenu = (props) => {
         case "FILE_CONTEXT_MENU":
             menu = <Paper style={{ position: 'absolute', top: top, left: left, zIndex: 1001}}>
                 <List>
-                    <ListItem button ><ListItemText>Rename</ListItemText></ListItem>
+                    <ListItem button onClick={onRenameFileClicked}><ListItemText>Rename</ListItemText></ListItem>
                     <ListItem button ><ListItemText>Delete</ListItemText></ListItem>
                 </List>
             </Paper>;
@@ -230,6 +271,9 @@ const FileManagerContextMenuContainer = connect(
         return {
             onCloseContextMenuClick: () => {
                 dispatch(closeContextMenu())
+            },
+            onRenameFileSelected: () => {
+                dispatch(renameSelectedFile())
             }
         }
     }

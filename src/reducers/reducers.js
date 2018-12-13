@@ -1,5 +1,11 @@
 import _ from "lodash";
-import {CLOSE_CONTEXT_MENU, OPEN_FILE_CONTEXT_MENU, OPEN_FOLDER_CONTEXT_MENU, TOGGLE_FOLDER} from "../actions/actions"
+import {
+    CLOSE_CONTEXT_MENU,
+    OPEN_FILE_CONTEXT_MENU,
+    OPEN_FOLDER_CONTEXT_MENU,
+    RENAME_SELECTED_FILE,
+    TOGGLE_FOLDER
+} from "../actions/actions"
 
 let initState = {
     projectName: "test",
@@ -9,6 +15,10 @@ let initState = {
         left: 0,
         type: "FOLDER_CONTEXT_MENU",
         parentId: null
+    },
+    renameFileDialog: {
+        name: null,
+        open: false
     },
     files: [
         {
@@ -160,6 +170,25 @@ const fileManager = (state=initState, action) => {
 
             let newState = _.cloneDeep(state);
             newState.fileManagerContextMenu.visible = false;
+
+            return newState;
+        }
+
+        case RENAME_SELECTED_FILE: {
+
+            let newState = _.cloneDeep(state);
+
+            if(newState.fileManagerContextMenu.parentId!==null){
+
+                let name = newState.fileManagerContextMenu.parentId.split("/").pop();
+
+                newState.renameFileDialog.open = true;
+                newState.renameFileDialog.parentId = newState.fileManagerContextMenu.parentId;
+                newState.renameFileDialog.name = name
+            }
+
+            newState.fileManagerContextMenu.visible = false;
+            newState.fileManagerContextMenu.parentId = null;
 
             return newState;
         }
