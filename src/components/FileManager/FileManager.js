@@ -1,14 +1,14 @@
 import {Fragment} from "react";
-import {Collapse, ListItem, ListItemIcon, ListItemText, withStyles} from "@material-ui/core";
+import {Collapse, List, ListItem, ListItemIcon, ListItemText, withStyles} from "@material-ui/core";
 import {ArrowDropDown, ArrowRight, Folder as FolderIcon, FolderOpen, InsertDriveFile} from "@material-ui/icons";
 import Dialog from "@material-ui/core/Dialog/Dialog";
 import DialogTitle from "@material-ui/core/DialogTitle/DialogTitle";
 import DialogContent from "@material-ui/core/DialogContent/DialogContent";
-import DialogContentText from "@material-ui/core/DialogContentText/DialogContentText";
 import TextField from "@material-ui/core/TextField/TextField";
 import DialogActions from "@material-ui/core/DialogActions/DialogActions";
 import Button from "@material-ui/core/Button/Button";
 import React from "react";
+import Paper from "@material-ui/core/Paper/Paper";
 
 function generateSubElements(files, parentId, level, onFolderClick, onFolderContextMenuClick, onFileContextMenuClick) {
     return files.map(file => {
@@ -118,21 +118,84 @@ export const Folder = withStyles(folderStyle)((props) => {
     )
 });
 
-// ------------------------------- FileTree ------------------------------
 
-export const FileTree = (props) => {
+const ContextMenu = (props) => {
+    const { top, left, type, onCanceled, parentId}  = props;
+    const { onRenameSelected } = props;
 
-    const {files, onFolderClick, onFolderContextMenuClick, onFileContextMenuClick} = props;
-    const { renameFileDialog } = props;
+    const onClick = (e) => {
+        e.preventDefault();
+        onCanceled();
+    };
 
-    const subFiles = generateSubElements(files, '', 0, onFolderClick, onFolderContextMenuClick, onFileContextMenuClick);
+    const onRenameClicked = () => {
+        onRenameSelected(parentId)
+    };
 
-    return (<Fragment>
-        {subFiles}
-        <Dialog open={renameFileDialog.open}>
-            <DialogTitle>Rename file</DialogTitle>
+    let menu = <div/>;
+
+    switch (type) {
+        case "FOLDER_CONTEXT_MENU":
+            menu = <Paper style={{ position: 'absolute', top: top, left: left, zIndex: 1001}}>
+                <List>
+                    <ListItem button ><ListItemText>New folder</ListItemText></ListItem>
+                    <ListItem button ><ListItemText>New file</ListItemText></ListItem>
+                    <ListItem button  onClick={onRenameClicked}><ListItemText>Rename</ListItemText></ListItem>
+                    <ListItem button ><ListItemText>Delete</ListItemText></ListItem>
+                </List>
+            </Paper>;
+
+            break;
+
+        case "FILE_CONTEXT_MENU":
+            menu = <Paper style={{ position: 'absolute', top: top, left: left, zIndex: 1001}}>
+                <List>
+                    <ListItem button onClick={onRenameClicked}><ListItemText>Rename</ListItemText></ListItem>
+                    <ListItem button ><ListItemText>Delete</ListItemText></ListItem>
+                </List>
+            </Paper>;
+
+            break;
+
+    }
+
+
+    return <Fragment>
+        <div style={{position: 'absolute', top: 0, bottom: 0, left: 0, right: 0, zIndex: 1000}} onClick={onClick} onContextMenu={onClick}>
+        </div>
+        {menu}
+        </Fragment>
+
+};
+
+
+class RenameFileDialog extends React.Component {
+
+    constructor(props){
+        super(props);
+
+        this.state = {
+            name: props.name
+        }
+    }
+
+    handleNameChange(event){
+        this.setState({
+            name: event.target.value
+        })
+    }
+
+    render(){
+
+        let name = this.state.name;
+
+        const onRenameClick = (e) => {
+            this.props.onRename(this.props.parentId, this.state.name)
+        };
+
+        return <Dialog open={true}>
+            <DialogTitle>Rename file {this.props.name}</DialogTitle>
             <DialogContent>
-                <DialogContentText>You up to rename file {renameFileDialog.name}</DialogContentText>
                 <TextField
                     autoFocus
                     margin="dense"
@@ -140,18 +203,128 @@ export const FileTree = (props) => {
                     label="New file name"
                     type="email"
                     fullWidth
-                    value={renameFileDialog.name}
+                    value={name}
+                    onChange={this.handleNameChange.bind(this)}
                 />
             </DialogContent>
             <DialogActions>
-                <Button color="primary">
+                <Button color="primary" onClick={onRenameClick}>
                     Rename
                 </Button>
-                <Button color="primary">
+                <Button color="primary" onClick={this.props.onCancel}>
                     Cancel
                 </Button>
             </DialogActions>
         </Dialog>
-    </Fragment>)
+    }
+}
 
+// ------------------------------- FileTree ------------------------------
+
+
+export class FileTree extends React.Component {
+
+    constructor(props){
+        super(props);
+
+        this.state = {
+            contextMenu: {
+                visible: false,
+            },
+            fileRenameDialog: {
+                visible: false,
+            }
+        }
+    }
+
+    handleFolderRightClick(parentId, x, y){
+        this.setState({
+            contextMenu: {
+                visible: true,
+                top: x,
+                left: y,
+                type: "FOLDER_CONTEXT_MENU",
+                parentId: parentId
+            }
+        })
+    }
+
+    handleFileRightClick(parentId, x, y){
+        this.setState({
+            contextMenu: {
+                visible: true,
+                top: x,
+                left: y,
+                type: "FILE_CONTEXT_MENU",
+                parentId: parentId
+            }
+        })
+    }
+
+    handleCancelAction(){
+
+        this.setState({
+            contextMenu: {
+                visible: false,
+            },
+            fileRenameDialog: {
+                visible: false,
+            }
+        })
+    }
+
+    handleRenameSelected(parentId){
+
+        this.setState({
+            contextMenu: {
+                visible: false,
+            },
+            fileRenameDialog: {
+                visible: true,
+                parentId: parentId
+            }
+        })
+    }
+
+    handleRenameRequest(parentId, name){
+
+        this.setState({
+            contextMenu: {
+                visible: false,
+            },
+            fileRenameDialog: {
+                visible: false,
+            }
+        });
+
+        this.props.onRename(parentId, name)
+    }
+
+    render(){
+        const {files, onFolderClick } = this.props;
+
+        const subFiles = generateSubElements(files, '', 0, onFolderClick, this.handleFolderRightClick.bind(this), this.handleFileRightClick.bind(this));
+
+        let contextMenu = null;
+        if(this.state.contextMenu.visible){
+
+            const {top, left, type} = this.state.contextMenu;
+
+            contextMenu = <ContextMenu parentId={this.state.contextMenu.parentId} top={top} left={left} type={type} onCanceled={this.handleCancelAction.bind(this)} onRenameSelected={this.handleRenameSelected.bind(this)}/>
+        }
+
+        let fileRenameDialog = null;
+        if(this.state.fileRenameDialog.visible){
+
+            const name = this.state.fileRenameDialog.parentId.split("/").pop();
+
+            fileRenameDialog = <RenameFileDialog parentId={this.state.fileRenameDialog.parentId} name={name} onRename={this.handleRenameRequest.bind(this)} onCancel={this.handleCancelAction.bind(this)}/>
+        }
+
+        return (<Fragment>
+            {contextMenu}
+            {subFiles}
+            {fileRenameDialog}
+        </Fragment>)
+    }
 };

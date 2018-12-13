@@ -1,6 +1,6 @@
 import {connect} from "react-redux";
 
-import {openFileContextMenu, openFolderContextMenu, toggleFolder} from "../../actions/actions";
+import {rename, toggleFolder} from "../../actions/actions";
 
 import {FileTree as FileTreeComponent} from "../../components/FileManager";
 
@@ -12,11 +12,8 @@ const mapDispatchToProps = dispatch => {
         onFolderClick: pathArray => {
             dispatch(toggleFolder(pathArray))
         },
-        onFolderContextMenuClick: (path, top, left) => {
-            dispatch(openFolderContextMenu(path, top, left))
-        },
-        onFileContextMenuClick: (path, top, left) => {
-            dispatch(openFileContextMenu(path, top, left))
+        onRename: (parentId, newName) => {
+            dispatch(rename(parentId, newName))
         }
     }
 };

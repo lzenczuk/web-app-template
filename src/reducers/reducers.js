@@ -1,25 +1,8 @@
 import _ from "lodash";
-import {
-    CLOSE_CONTEXT_MENU,
-    OPEN_FILE_CONTEXT_MENU,
-    OPEN_FOLDER_CONTEXT_MENU,
-    RENAME_SELECTED_FILE,
-    TOGGLE_FOLDER
-} from "../actions/actions"
+import { RENAME, TOGGLE_FOLDER } from "../actions/actions"
 
 let initState = {
     projectName: "test",
-    fileManagerContextMenu: {
-        visible: false,
-        top: 0,
-        left: 0,
-        type: "FOLDER_CONTEXT_MENU",
-        parentId: null
-    },
-    renameFileDialog: {
-        name: null,
-        open: false
-    },
     files: [
         {
             type: "FOLDER",
@@ -97,6 +80,33 @@ let initState = {
     ]
 };
 
+const findElementByParentId = (root, parentId) => {
+    const pathArray = parentId.split("/");
+    let index = 0;
+
+    while (index < pathArray.length) {
+        const p = pathArray[index];
+
+        for (let fIndex = 0; fIndex < root.length; fIndex++) {
+            let element = root[fIndex];
+
+            if (element.name === p) {
+
+                if (index === pathArray.length - 1) {
+                    return element;
+                }
+                root = element.files;
+                break;
+            }
+
+        }
+
+        index++;
+    }
+
+    return null;
+};
+
 const fileManager = (state=initState, action) => {
 
     switch (action.type) {
@@ -106,89 +116,26 @@ const fileManager = (state=initState, action) => {
 
             let path = action.path;
 
-            let root = newState.files;
-            const pathArray = path.split("/");
-            let index = 0;
+            const element = findElementByParentId(newState.files, path);
 
-            while (index < pathArray.length) {
-                const p = pathArray[index];
-
-                for (let fIndex = 0; fIndex < root.length; fIndex++) {
-                    let element = root[fIndex];
-
-                    if (element.type === 'FOLDER' && element.name === p) {
-
-                        if (index === pathArray.length - 1) {
-                            element.open = !element.open;
-                        } else {
-                            element.open = true;
-                        }
-                        root = element.files;
-                        break;
-                    }
-
-                }
-
-                index++;
+            if(element.type === 'FOLDER') {
+                element.open = !element.open;
             }
 
-
             return newState;
         }
 
-        case OPEN_FOLDER_CONTEXT_MENU: {
+        case RENAME: {
 
             let newState = _.cloneDeep(state);
 
-            let { path, top, left } = action;
+            const { parentId, newName } = action;
 
-            newState.fileManagerContextMenu.visible = true;
-            newState.fileManagerContextMenu.parentId = path;
-            newState.fileManagerContextMenu.top = top;
-            newState.fileManagerContextMenu.left = left;
-            newState.fileManagerContextMenu.type = "FOLDER_CONTEXT_MENU";
+            const element = findElementByParentId(newState.files, parentId);
 
-            return newState;
-        }
-
-        case OPEN_FILE_CONTEXT_MENU: {
-
-            let newState = _.cloneDeep(state);
-
-            let { path, top, left } = action;
-
-            newState.fileManagerContextMenu.visible = true;
-            newState.fileManagerContextMenu.parentId = path;
-            newState.fileManagerContextMenu.top = top;
-            newState.fileManagerContextMenu.left = left;
-            newState.fileManagerContextMenu.type = "FILE_CONTEXT_MENU";
-
-            return newState;
-        }
-
-        case CLOSE_CONTEXT_MENU: {
-
-            let newState = _.cloneDeep(state);
-            newState.fileManagerContextMenu.visible = false;
-
-            return newState;
-        }
-
-        case RENAME_SELECTED_FILE: {
-
-            let newState = _.cloneDeep(state);
-
-            if(newState.fileManagerContextMenu.parentId!==null){
-
-                let name = newState.fileManagerContextMenu.parentId.split("/").pop();
-
-                newState.renameFileDialog.open = true;
-                newState.renameFileDialog.parentId = newState.fileManagerContextMenu.parentId;
-                newState.renameFileDialog.name = name
+            if(element!=null){
+                element.name = newName
             }
-
-            newState.fileManagerContextMenu.visible = false;
-            newState.fileManagerContextMenu.parentId = null;
 
             return newState;
         }
