@@ -10,7 +10,7 @@ import ToolBar from '@material-ui/core/Toolbar';
 import Button from '@material-ui/core/Button';
 import Paper from '@material-ui/core/Paper';
 import { Provider } from 'react-redux'
-import store from "./stores/stores";
+import store from "./storeConfig";
 
 import { FileTree } from "./containers/FileManager";
 

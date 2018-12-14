@@ -1,8 +1,7 @@
 import _ from "lodash";
-import { RENAME, TOGGLE_FOLDER } from "../actions/actions"
+import { RENAME, TOGGLE_FOLDER } from "./actions"
 
 let initState = {
-    projectName: "test",
     files: [
         {
             type: "FOLDER",

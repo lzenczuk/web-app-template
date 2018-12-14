@@ -1,11 +1,11 @@
 import {connect} from "react-redux";
 
-import {rename, toggleFolder} from "../../actions/actions";
+import {rename, toggleFolder} from "../../modules/fileManager/actions";
 
 import {FileTree as FileTreeComponent} from "../../components/FileManager";
 
 
-const mapStateToProps = state => state;
+const mapStateToProps = state => state.fileManager;
 
 const mapDispatchToProps = dispatch => {
     return {
