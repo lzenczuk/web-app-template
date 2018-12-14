@@ -2,77 +2,81 @@ import _ from "lodash";
 import { RENAME } from "./actions"
 
 let initState = {
-    files: [
-        {
-            type: "FOLDER",
-            name: "scheduler",
-            files: [
-                {
-                    type: "FOLDER",
-                    name: "local",
-                    files: [
-                        {
-                            type: "FILE",
-                            name: "local_scheduler.hpp",
-                            content: "Test scheduler.hpp"
-                        },
-                        {
-                            type: "FILE",
-                            name: "local_scheduler.cpp",
-                            content: "Test scheduler.cpp"
-                        }
-                    ]
-                },
-                {
-                    type: "FOLDER",
-                    name: "remote",
-                    files: [
-                        {
-                            type: "FILE",
-                            name: "remote_scheduler.hpp",
-                            content: "Test scheduler.hpp"
-                        },
-                        {
-                            type: "FILE",
-                            name: "remote_scheduler.cpp",
-                            content: "Test scheduler.cpp"
-                        }
-                    ]
-                },
-                {
-                    type: "FILE",
-                    name: "scheduler.hpp",
-                    content: "Test scheduler.hpp"
-                },
-                {
-                    type: "FILE",
-                    name: "scheduler.cpp",
-                    content: "Test scheduler.cpp"
-                }
-            ]
-        },
-        {
-            type: "FOLDER",
-            name: "hello",
-            files: [
-                {
-                    type: "FILE",
-                    name: "hello.hpp",
-                    content: "Test hello.hpp"
-                },
-                {
-                    type: "FILE",
-                    name: "hello.cpp",
-                    content: "Test hello.cpp"
-                }
-            ]
-        },
-        {
-            type: "FILE",
-            name: "scheduler.hpp",
-            content: "Test scheduler.hpp"
-        }
-    ]
+    root: {
+        type: "FOLDER",
+        name: "project name",
+        files: [
+            {
+                type: "FOLDER",
+                name: "scheduler",
+                files: [
+                    {
+                        type: "FOLDER",
+                        name: "local",
+                        files: [
+                            {
+                                type: "FILE",
+                                name: "local_scheduler.hpp",
+                                content: "Test scheduler.hpp"
+                            },
+                            {
+                                type: "FILE",
+                                name: "local_scheduler.cpp",
+                                content: "Test scheduler.cpp"
+                            }
+                        ]
+                    },
+                    {
+                        type: "FOLDER",
+                        name: "remote",
+                        files: [
+                            {
+                                type: "FILE",
+                                name: "remote_scheduler.hpp",
+                                content: "Test scheduler.hpp"
+                            },
+                            {
+                                type: "FILE",
+                                name: "remote_scheduler.cpp",
+                                content: "Test scheduler.cpp"
+                            }
+                        ]
+                    },
+                    {
+                        type: "FILE",
+                        name: "scheduler.hpp",
+                        content: "Test scheduler.hpp"
+                    },
+                    {
+                        type: "FILE",
+                        name: "scheduler.cpp",
+                        content: "Test scheduler.cpp"
+                    }
+                ]
+            },
+            {
+                type: "FOLDER",
+                name: "hello",
+                files: [
+                    {
+                        type: "FILE",
+                        name: "hello.hpp",
+                        content: "Test hello.hpp"
+                    },
+                    {
+                        type: "FILE",
+                        name: "hello.cpp",
+                        content: "Test hello.cpp"
+                    }
+                ]
+            },
+            {
+                type: "FILE",
+                name: "scheduler.hpp",
+                content: "Test scheduler.hpp"
+            }
+        ]
+    }
 };
 
 const findElementByParentId = (root, parentId) => {
@@ -112,7 +116,7 @@ const fileManager = (state=initState, action) => {
 
             const { parentId, newName } = action;
 
-            const element = findElementByParentId(newState.files, parentId);
+            const element = findElementByParentId(newState.root.files, parentId);
 
             if(element!=null){
                 element.name = newName

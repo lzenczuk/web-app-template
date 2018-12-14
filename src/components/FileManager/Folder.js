@@ -1,7 +1,25 @@
 import {Collapse, ListItem, ListItemIcon, ListItemText, withStyles} from "@material-ui/core";
-import {generateSubElements} from "./utils";
 import {ArrowDropDown, ArrowRight, Folder as FolderIcon, FolderOpen} from "@material-ui/icons";
 import React, {Fragment} from "react";
+import {File} from "./File";
+
+function generateSubElements(files, parentId, level, onFolderContextMenuClick, onFileContextMenuClick) {
+    return files.map(file => {
+
+        switch (file.type) {
+            case "FILE":
+                return <File key={parentId + '/' + file.name} parentId={parentId + '/' + file.name} name={file.name}
+                             level={level + 1} onFileContextMenuClick={onFileContextMenuClick}/>;
+            case "FOLDER":
+                return <Folder key={parentId + '/' + file.name} parentId={parentId + '/' + file.name} name={file.name}
+                               level={level + 1} open={file.open} files={file.files}
+                               onFolderContextMenuClick={onFolderContextMenuClick}
+                               onFileContextMenuClick={onFileContextMenuClick}/>;
+            default:
+                throw "Unknown file type: " + file.type
+        }
+    });
+}
 
 const folderStyle = theme => ({
     listItemRoot: {

@@ -1,7 +1,7 @@
 import React, {Fragment} from "react";
-import {generateSubElements} from "./utils";
 import {ContextMenu} from "./ContextMenu";
 import {RenameDialog} from "./RenameDialog";
+import {Folder} from "./Folder";
 
 
 export class FileTree extends React.Component {
@@ -83,9 +83,12 @@ export class FileTree extends React.Component {
     }
 
     render(){
-        const { files } = this.props;
+        const { root } = this.props;
 
-        const subFiles = generateSubElements(files, '', 0, this.handleFolderRightClick.bind(this), this.handleFileRightClick.bind(this));
+        const rootFolder = <Folder key={'/' + root.name} parentId={'/' + root.name} name={root.name}
+                                   level={0} files={root.files}
+                                   onFolderContextMenuClick={this.handleFolderRightClick.bind(this)}
+                                   onFileContextMenuClick={this.handleFileRightClick.bind(this)}/>;
 
         let contextMenu = null;
         if(this.state.contextMenu.visible){
@@ -105,7 +108,7 @@ export class FileTree extends React.Component {
 
         return (<Fragment>
             {contextMenu}
-            {subFiles}
+            {rootFolder}
             {fileRenameDialog}
         </Fragment>)
     }
