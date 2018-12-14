@@ -3,23 +3,6 @@ import {ArrowDropDown, ArrowRight, Folder as FolderIcon, FolderOpen} from "@mate
 import React, {Fragment} from "react";
 import {File} from "./File";
 
-function generateSubElements(files, parentId, level, onFolderContextMenuClick, onFileContextMenuClick) {
-    return files.map(file => {
-
-        switch (file.type) {
-            case "FILE":
-                return <File key={parentId + '/' + file.name} parentId={parentId + '/' + file.name} name={file.name}
-                             level={level + 1} onFileContextMenuClick={onFileContextMenuClick}/>;
-            case "FOLDER":
-                return <Folder key={parentId + '/' + file.name} parentId={parentId + '/' + file.name} name={file.name}
-                               level={level + 1} open={file.open} files={file.files}
-                               onFolderContextMenuClick={onFolderContextMenuClick}
-                               onFileContextMenuClick={onFileContextMenuClick}/>;
-            default:
-                throw "Unknown file type: " + file.type
-        }
-    });
-}
 
 const folderStyle = theme => ({
     listItemRoot: {
@@ -49,17 +32,31 @@ class FolderInternal extends React.Component {
     }
 
     render(){
-        let {parentId, name, level, files, classes, onFolderContextMenuClick, onFileContextMenuClick} = this.props;
+        let {parentId, name, level, files, folders, classes, onFolderContextMenuClick, onFileContextMenuClick} = this.props;
 
         if (files === undefined) {
             files = []
+        }
+
+        if (folders === undefined) {
+            folders = []
         }
 
         if (level === undefined) {
             level = 0
         }
 
-        const subFiles = generateSubElements(files, parentId, level, onFolderContextMenuClick, onFileContextMenuClick);
+        const foldersComponents = folders.map( folder => {
+            return <Folder key={parentId + '/' + folder.name} parentId={parentId + '/' + folder.name} name={folder.name}
+                           level={level + 1}  files={folder.files} folders={folder.folders}
+                           onFolderContextMenuClick={onFolderContextMenuClick}
+                           onFileContextMenuClick={onFileContextMenuClick}/>;
+        });
+
+        const filesComponents = files.map( file => {
+            return <File key={parentId + '/' + file.name} parentId={parentId + '/' + file.name} name={file.name}
+                         level={level + 1} onFileContextMenuClick={onFileContextMenuClick}/>;
+        });
 
         const folderIcon = this.state.open === true ? <FolderOpen/> : <FolderIcon/>;
         const arrowIcon = this.state.open === true ? <ArrowDropDown/> : <ArrowRight/>;
@@ -83,7 +80,8 @@ class FolderInternal extends React.Component {
                         classes={{root: classes.textItemRoot, primary: classes.textItemPrimary}}>{name}</ListItemText>
                 </ListItem>
                 <Collapse in={this.state.open}>
-                    {subFiles}
+                    {foldersComponents}
+                    {filesComponents}
                 </Collapse>
             </Fragment>
         )

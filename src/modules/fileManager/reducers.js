@@ -5,14 +5,15 @@ let initState = {
     root: {
         type: "FOLDER",
         name: "project name",
-        files: [
+        folders: [
             {
                 type: "FOLDER",
                 name: "scheduler",
-                files: [
+                folders: [
                     {
                         type: "FOLDER",
                         name: "local",
+                        folders: [],
                         files: [
                             {
                                 type: "FILE",
@@ -29,6 +30,7 @@ let initState = {
                     {
                         type: "FOLDER",
                         name: "remote",
+                        folders: [],
                         files: [
                             {
                                 type: "FILE",
@@ -41,7 +43,9 @@ let initState = {
                                 content: "Test scheduler.cpp"
                             }
                         ]
-                    },
+                    }
+                ],
+                files: [
                     {
                         type: "FILE",
                         name: "scheduler.hpp",
@@ -57,6 +61,7 @@ let initState = {
             {
                 type: "FOLDER",
                 name: "hello",
+                folders: [],
                 files: [
                     {
                         type: "FILE",
@@ -70,6 +75,8 @@ let initState = {
                     }
                 ]
             },
+        ],
+        files: [
             {
                 type: "FILE",
                 name: "scheduler.hpp",
@@ -79,32 +86,35 @@ let initState = {
     }
 };
 
-const findElementByParentId = (root, parentId) => {
-    const pathArray = parentId.split("/");
-    let index = 0;
 
-    while (index < pathArray.length) {
-        const p = pathArray[index];
+function findTreeNodeByPath(root, path) {
 
-        for (let fIndex = 0; fIndex < root.length; fIndex++) {
-            let element = root[fIndex];
+    const lookingElementName = path[0];
 
-            if (element.name === p) {
+    // last element in path
+    if(path.length===1){
 
-                if (index === pathArray.length - 1) {
-                    return element;
-                }
-                root = element.files;
-                break;
-            }
+        let e = root.folders.find(folder => folder.name===lookingElementName);
 
+        if(e===undefined){
+            e =  root.files.find(file => file.name===lookingElementName);
         }
 
-        index++;
-    }
+        return e;
+    }else{
+        let e = root.folders.find(folder => folder.name===lookingElementName);
 
-    return null;
-};
+        if(e===undefined){
+            return e
+        }else{
+            return findTreeNodeByPath(e, path.slice(1))
+        }
+    }
+}
+
+function parentIdToPathArray(parentId) {
+    return parentId.split("/").filter( v => v!=="");
+}
 
 const fileManager = (state=initState, action) => {
 
@@ -116,10 +126,16 @@ const fileManager = (state=initState, action) => {
 
             const { parentId, newName } = action;
 
-            const element = findElementByParentId(newState.root.files, parentId);
+            let pathArray = parentIdToPathArray(parentId);
 
-            if(element!=null){
-                element.name = newName
+            if(pathArray.length!==0 && pathArray[0]===newState.root.name){
+
+                const element = findTreeNodeByPath(newState.root, pathArray.slice(1));
+
+                if(element!==undefined){
+                    element.name = newName
+                }
+
             }
 
             return newState;

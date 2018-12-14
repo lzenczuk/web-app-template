@@ -86,7 +86,7 @@ export class FileTree extends React.Component {
         const { root } = this.props;
 
         const rootFolder = <Folder key={'/' + root.name} parentId={'/' + root.name} name={root.name}
-                                   level={0} files={root.files}
+                                   level={0} files={root.files} folders={root.folders}
                                    onFolderContextMenuClick={this.handleFolderRightClick.bind(this)}
                                    onFileContextMenuClick={this.handleFileRightClick.bind(this)}/>;
 
