@@ -1,3 +1,5 @@
-import { FileTree, Folder, File } from "./FileManager"
+import { FileTree} from "./FileManager"
+import {File} from "./File";
+import {Folder} from "./Folder";
 
 export { FileTree, Folder, File}
