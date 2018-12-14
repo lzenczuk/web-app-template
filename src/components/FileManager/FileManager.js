@@ -83,9 +83,9 @@ export class FileTree extends React.Component {
     }
 
     render(){
-        const {files, onFolderClick } = this.props;
+        const { files } = this.props;
 
-        const subFiles = generateSubElements(files, '', 0, onFolderClick, this.handleFolderRightClick.bind(this), this.handleFileRightClick.bind(this));
+        const subFiles = generateSubElements(files, '', 0, this.handleFolderRightClick.bind(this), this.handleFileRightClick.bind(this));
 
         let contextMenu = null;
         if(this.state.contextMenu.visible){

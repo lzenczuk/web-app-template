@@ -1,17 +1,15 @@
 import _ from "lodash";
-import { RENAME, TOGGLE_FOLDER } from "./actions"
+import { RENAME } from "./actions"
 
 let initState = {
     files: [
         {
             type: "FOLDER",
             name: "scheduler",
-            open: false,
             files: [
                 {
                     type: "FOLDER",
                     name: "local",
-                    open: false,
                     files: [
                         {
                             type: "FILE",
@@ -28,7 +26,6 @@ let initState = {
                 {
                     type: "FOLDER",
                     name: "remote",
-                    open: false,
                     files: [
                         {
                             type: "FILE",
@@ -57,7 +54,6 @@ let initState = {
         {
             type: "FOLDER",
             name: "hello",
-            open: false,
             files: [
                 {
                     type: "FILE",
@@ -109,20 +105,6 @@ const findElementByParentId = (root, parentId) => {
 const fileManager = (state=initState, action) => {
 
     switch (action.type) {
-        case TOGGLE_FOLDER: {
-
-            let newState = _.cloneDeep(state);
-
-            let path = action.path;
-
-            const element = findElementByParentId(newState.files, path);
-
-            if(element.type === 'FOLDER') {
-                element.open = !element.open;
-            }
-
-            return newState;
-        }
 
         case RENAME: {
 

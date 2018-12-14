@@ -19,42 +19,58 @@ const folderStyle = theme => ({
         fontSize: "0.75rem",
     }
 });
-export const Folder = withStyles(folderStyle)((props) => {
 
-    let {parentId, name, level, files, open, classes, onFolderClick, onFolderContextMenuClick, onFileContextMenuClick} = props;
+class FolderInternal extends React.Component {
 
-    if (files === undefined) {
-        files = []
+    constructor(props){
+        super(props);
+
+        this.state = {
+            open: false
+        }
     }
 
-    if (level === undefined) {
-        level = 0
+    render(){
+        let {parentId, name, level, files, classes, onFolderContextMenuClick, onFileContextMenuClick} = this.props;
+
+        if (files === undefined) {
+            files = []
+        }
+
+        if (level === undefined) {
+            level = 0
+        }
+
+        const subFiles = generateSubElements(files, parentId, level, onFolderContextMenuClick, onFileContextMenuClick);
+
+        const folderIcon = this.state.open === true ? <FolderOpen/> : <FolderIcon/>;
+        const arrowIcon = this.state.open === true ? <ArrowDropDown/> : <ArrowRight/>;
+
+        const folderClick = () => {
+            this.setState({ open: !this.state.open })
+        };
+
+        const folderContextClick = (e) => {
+            e.preventDefault();
+            onFolderContextMenuClick(parentId, e.clientY, e.clientX)
+        };
+
+        return (
+            <Fragment>
+                <ListItem button classes={{root: classes.listItemRoot}} style={{paddingLeft: level * 16}}
+                          onContextMenu={folderContextClick} onClick={folderClick}>
+                    <ListItemIcon classes={{root: classes.iconItemRoot}}>{arrowIcon}</ListItemIcon>
+                    <ListItemIcon classes={{root: classes.iconItemRoot}}>{folderIcon}</ListItemIcon>
+                    <ListItemText
+                        classes={{root: classes.textItemRoot, primary: classes.textItemPrimary}}>{name}</ListItemText>
+                </ListItem>
+                <Collapse in={this.state.open}>
+                    {subFiles}
+                </Collapse>
+            </Fragment>
+        )
     }
 
-    const subFiles = generateSubElements(files, parentId, level, onFolderClick, onFolderContextMenuClick, onFileContextMenuClick);
+}
 
-    const folderIcon = open === true ? <FolderOpen/> : <FolderIcon/>;
-    const arrowIcon = open === true ? <ArrowDropDown/> : <ArrowRight/>;
-
-    const folderClick = () => onFolderClick(parentId);
-
-    const folderContextClick = (e) => {
-        e.preventDefault();
-        onFolderContextMenuClick(parentId, e.clientY, e.clientX)
-    };
-
-    return (
-        <Fragment>
-            <ListItem button classes={{root: classes.listItemRoot}} style={{paddingLeft: level * 16}}
-                      onContextMenu={folderContextClick} onClick={folderClick}>
-                <ListItemIcon classes={{root: classes.iconItemRoot}}>{arrowIcon}</ListItemIcon>
-                <ListItemIcon classes={{root: classes.iconItemRoot}}>{folderIcon}</ListItemIcon>
-                <ListItemText
-                    classes={{root: classes.textItemRoot, primary: classes.textItemPrimary}}>{name}</ListItemText>
-            </ListItem>
-            <Collapse in={open}>
-                {subFiles}
-            </Collapse>
-        </Fragment>
-    )
-});
+export const Folder = withStyles(folderStyle)(FolderInternal);
