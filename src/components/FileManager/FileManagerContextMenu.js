@@ -6,6 +6,13 @@ export const FileManagerContextMenu = (props) => {
     const {visible, top, left, onCancel } = props;
     const { onOperationSelected } = props;
 
+    const operators = [
+        { name: "NEW_FOLDER", label: "New folder", folder: true, file: false},
+        { name: "NEW_FILE", label: "New file", folder: true, file: false},
+        { name: "RENAME", label: "Rename", folder: true, file: true},
+        { name: "REMOVE", label: "Delete", folder: true, file: true},
+    ];
+
     if(!visible){
         return null
     }
@@ -20,6 +27,17 @@ export const FileManagerContextMenu = (props) => {
         onOperationSelected(operation)
     };
 
+    let ops = operators
+        .filter(operator => {
+            if(props.folder){
+                return operator.folder
+            }else{
+                return operator.file
+            }
+        })
+        .map( operator => {
+        return <ListItem button key={operator.name} onClick={handleContextOperationSelected(operator.name)}><ListItemText>{operator.label}</ListItemText></ListItem>
+    });
 
     return <Fragment>
         <div style={{position: 'relative'}}>
@@ -30,8 +48,7 @@ export const FileManagerContextMenu = (props) => {
         <div style={{position: 'relative'}}>
             <Paper style={{position: 'fixed', top: top, left: left, zIndex: 1001}}>
                 <List>
-                    <ListItem button onClick={handleContextOperationSelected("RENAME")}><ListItemText>Rename</ListItemText></ListItem>
-                    <ListItem button onClick={handleContextOperationSelected("REMOVE")}><ListItemText>Delete</ListItemText></ListItem>
+                    {ops}
                 </List>
             </Paper>
         </div>

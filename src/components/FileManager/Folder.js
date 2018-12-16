@@ -157,6 +157,7 @@ class FolderInternal extends React.Component {
                 </Collapse>
 
                 <FileManagerContextMenu
+                    folder={true}
                     visible={this.state.contextMenuVisible}
                     left={this.state.x}
                     top={this.state.y}
