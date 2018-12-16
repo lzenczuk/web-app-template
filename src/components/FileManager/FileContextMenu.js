@@ -4,36 +4,33 @@ import React, {Fragment} from "react";
 
 export const FileContextMenu = (props) => {
     const {visible, top, left, onCancel } = props;
-    const {onRenameSelected} = props;
+    const { onOperationSelected } = props;
 
     if(!visible){
         return null
     }
 
-    const onClick = (e) => {
+    const handleClick = (e) => {
         e.preventDefault();
         onCancel();
     };
 
-    const handleRenameClicked = () => {
-        onRenameSelected()
+    const handleContextOperationSelected = (operation) => () => {
+        onOperationSelected(operation)
     };
 
-    const handleDeleteClicked = () => {
-        onRenameSelected()
-    };
 
     return <Fragment>
         <div style={{position: 'relative'}}>
-            <div style={{position: 'fixed', top: 0, bottom: 0, left: 0, right: 0, zIndex: 1000}} onClick={onClick}
-                 onContextMenu={onClick}>
+            <div style={{position: 'fixed', top: 0, bottom: 0, left: 0, right: 0, zIndex: 1000}} onClick={handleClick}
+                 onContextMenu={handleClick}>
             </div>
         </div>
         <div style={{position: 'relative'}}>
             <Paper style={{position: 'fixed', top: top, left: left, zIndex: 1001}}>
                 <List>
-                    <ListItem button onClick={handleRenameClicked}><ListItemText>Rename</ListItemText></ListItem>
-                    <ListItem button><ListItemText>Delete</ListItemText></ListItem>
+                    <ListItem button onClick={handleContextOperationSelected("RENAME")}><ListItemText>Rename</ListItemText></ListItem>
+                    <ListItem button onClick={handleContextOperationSelected("REMOVE")}><ListItemText>Delete</ListItemText></ListItem>
                 </List>
             </Paper>
         </div>

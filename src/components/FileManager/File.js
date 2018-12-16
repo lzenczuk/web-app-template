@@ -2,7 +2,7 @@ import {ListItem, ListItemIcon, ListItemText, withStyles} from "@material-ui/cor
 import {InsertDriveFile} from "@material-ui/icons";
 import React from "react";
 import {FileContextMenu} from "./FileContextMenu";
-import {NameDialog} from "./NameDialog";
+import {FileManagerDialog} from "./FileManagerDialog";
 
 const fileStyle = theme => ({
     listItemRoot: {
@@ -27,17 +27,13 @@ class FileInternal extends React.Component{
         super(props);
 
         this.state = {
-            contextMenuVisible: false
+            contextMenuVisible: false,
+            fileDialogVisible: false,
         }
     }
 
-    onRightClick(e){
+    handleRightClick(e){
         e.preventDefault();
-
-        console.log("client: "+e.clientX+", "+e.clientY);
-        console.log("offset: "+e.offsetX+", "+e.offsetY);
-        console.log("screen: "+e.screenX+", "+e.screenY);
-        console.log("page: "+e.pageX+", "+e.pageY);
 
         this.setState({
             contextMenuVisible: true,
@@ -46,33 +42,54 @@ class FileInternal extends React.Component{
         })
     };
 
-    onCancelContextAction(){
-        this.setState({
-            contextMenuVisible: false,
-            renameDialogVisible: false,
-        })
-    };
+    handleSelectedOperation(operation){
+        switch (operation) {
+            case "RENAME":
+                this.setState({
+                    contextMenuVisible: false,
+                    fileDialogVisible: true,
+                    operation: operation,
+                    confirmationOnly: false,
+                    title: "Rename file "+this.props.name,
+                    label: "New name",
+                    value: this.props.name
+                });
+                break;
+            case "REMOVE":
+                this.setState({
+                    contextMenuVisible: false,
+                    fileDialogVisible: true,
+                    operation: operation,
+                    confirmationOnly: true,
+                    title: "Delete file "+this.props.name,
+                });
+                break;
+        }
+    }
 
-    onRenameSelected(){
-        this.setState({
-            contextMenuVisible: false,
-            renameDialogVisible: true
-        })
-    };
+    handleAcceptedOperation(param1){
+        switch (this.state.operation) {
+            case "RENAME":
+                const newName = param1;
+                this.props.onRename(this.props.parentId, newName);
+                break;
+            case "REMOVE":
+                this.props.onDelete(this.props.parentId);
+                break;
+        }
 
-    onDeleteSelected(){
         this.setState({
             contextMenuVisible: false,
-        })
-    };
-
-    onRenameAccepted(newName){
-        this.setState({
-            contextMenuVisible: false,
-            renameDialogVisible: false,
+            fileDialogVisible: false,
         });
+    }
 
-        this.props.onRename(this.props.parentId, newName)
+
+    handleCanceledOperation(){
+        this.setState({
+            contextMenuVisible: false,
+            fileDialogVisible: false,
+        });
     }
 
     render(){
@@ -80,18 +97,24 @@ class FileInternal extends React.Component{
         const { name, level, classes } = this.props;
 
         return <ListItem button classes={{root: classes.listItemRoot}} style={{paddingLeft: level * 20}}
-                         onContextMenu={this.onRightClick.bind(this)}>
+                         onContextMenu={this.handleRightClick.bind(this)}>
             <ListItemIcon classes={{root: classes.fileIconRoot}}><InsertDriveFile/></ListItemIcon>
             <ListItemText classes={{root: classes.textItemRoot, primary: classes.textItemPrimary}}>{name}</ListItemText>
             <FileContextMenu
                 visible={this.state.contextMenuVisible}
                 left={this.state.x}
                 top={this.state.y}
-                onCancel={this.onCancelContextAction.bind(this)}
-                onRenameSelected={this.onRenameSelected.bind(this)}
-                onDelteSelected={this.onDeleteSelected.bind(this)}
+                onCancel={this.handleCanceledOperation.bind(this)}
+                onOperationSelected={this.handleSelectedOperation.bind(this)}
             />
-            <NameDialog visible={this.state.renameDialogVisible} name={name} rename={true} onAccept={this.onRenameAccepted.bind(this)} onCancel={this.onCancelContextAction.bind(this)}/>
+            <FileManagerDialog
+                visible={this.state.fileDialogVisible}
+                confirmationOnly={this.state.confirmationOnly}
+                title={this.state.title}
+                label={this.state.label}
+                value={name}
+                onAccept={this.handleAcceptedOperation.bind(this)}
+                onCancel={this.handleCanceledOperation.bind(this)}/>
         </ListItem>
     }
 }

@@ -1,5 +1,5 @@
-import { FileTree} from "./FileManager"
+import { FileManager} from "./FileManager"
 import {File} from "./File";
 import {Folder} from "./Folder";
 
-export { FileTree, Folder, File}
+export { FileManager, Folder, File}

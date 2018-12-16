@@ -1,3 +1,3 @@
-import { FileTree } from "./FileManager";
+import { FileManager } from "./FileManager";
 
-export { FileTree }
+export { FileManager }

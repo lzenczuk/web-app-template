@@ -1,5 +1,5 @@
 import _ from "lodash";
-import { RENAME } from "./actions"
+import {REMOVE, RENAME} from "./actions"
 
 let initState = {
     root: {
@@ -112,6 +112,31 @@ function findTreeNodeByPath(root, path) {
     }
 }
 
+function removeTreeNodeByPath(root, path) {
+
+    const lookingElementName = path[0];
+
+    // last element in path
+    if(path.length===1){
+
+        let newFoldersArray = root.folders.filter(folder => folder.name!==lookingElementName);
+
+        if(newFoldersArray.length===root.folders.length){
+            root.files = root.files.filter(file => file.name !== lookingElementName);
+        }else{
+            root.folders = newFoldersArray;
+        }
+    }else{
+        let e = root.folders.find(folder => folder.name===lookingElementName);
+
+        if(e===undefined){
+            return
+        }else{
+            return removeTreeNodeByPath(e, path.slice(1))
+        }
+    }
+}
+
 function parentIdToPathArray(parentId) {
     return parentId.split("/").filter( v => v!=="");
 }
@@ -139,6 +164,23 @@ const fileManager = (state=initState, action) => {
             }
 
             return newState;
+        }
+
+        case REMOVE: {
+            let newState = _.cloneDeep(state);
+
+            const { parentId } = action;
+
+            let pathArray = parentIdToPathArray(parentId);
+
+            if(pathArray.length!==0 && pathArray[0]===newState.root.name){
+
+                removeTreeNodeByPath(newState.root, pathArray.slice(1));
+
+            }
+
+            return newState;
+
         }
 
         default:

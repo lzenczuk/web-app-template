@@ -1,8 +1,8 @@
 import {connect} from "react-redux";
 
-import {rename} from "../../modules/fileManager/actions";
+import {remove, rename} from "../../modules/fileManager/actions";
 
-import {FileTree as FileTreeComponent} from "../../components/FileManager";
+import {FileManager as FileManagerComponent} from "../../components/FileManager";
 
 
 const mapStateToProps = state => state.fileManager;
@@ -11,11 +11,14 @@ const mapDispatchToProps = dispatch => {
     return {
         onRename: (parentId, newName) => {
             dispatch(rename(parentId, newName))
+        },
+        onDelete: (parentId) => {
+            dispatch(remove(parentId))
         }
     }
 };
 
-export const FileTree = connect(
+export const FileManager = connect(
     mapStateToProps,
     mapDispatchToProps
-)(FileTreeComponent);
+)(FileManagerComponent);

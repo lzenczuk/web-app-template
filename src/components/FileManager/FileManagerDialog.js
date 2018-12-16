@@ -6,20 +6,28 @@ import TextField from "@material-ui/core/TextField/TextField";
 import DialogActions from "@material-ui/core/DialogActions/DialogActions";
 import Button from "@material-ui/core/Button/Button";
 
-export class NameDialog extends React.Component {
+export class FileManagerDialog extends React.Component {
 
     constructor(props) {
         super(props);
 
         this.state = {
-            name: props.name
+            value: props.value
         }
     }
 
-    handleNameChange(event) {
+    handleValueChange(event) {
         this.setState({
-            name: event.target.value
+            value: event.target.value
         })
+    }
+
+    handleAccept(){
+        if(this.props.confirmationOnly){
+            this.props.onAccept()
+        }else{
+            this.props.onAccept(this.state.value)
+        }
     }
 
     render() {
@@ -28,34 +36,27 @@ export class NameDialog extends React.Component {
             return null
         }
 
-        let name = this.state.name;
-
-        const onAcceptClick = (e) => {
-            this.props.onAccept(this.state.name)
-        };
-
-        let title=<DialogTitle>New file name</DialogTitle>;
-        if(this.props.rename){
-            title = <DialogTitle>Rename file {this.props.name}</DialogTitle>
-        }
-
-
-        return <Dialog open={true}>
-            {title}
-            <DialogContent>
+        let valueField = null;
+        if(!this.props.confirmationOnly){
+            valueField = <DialogContent>
                 <TextField
                     autoFocus
                     margin="dense"
                     id="name"
-                    label="New file name"
+                    label={this.props.label}
                     type="email"
                     fullWidth
-                    value={name}
-                    onChange={this.handleNameChange.bind(this)}
+                    value={this.state.value}
+                    onChange={this.handleValueChange.bind(this)}
                 />
             </DialogContent>
+        }
+
+        return <Dialog open={true}>
+            <DialogTitle>{this.props.title}</DialogTitle>
+            {valueField}
             <DialogActions>
-                <Button color="primary" onClick={onAcceptClick}>
+                <Button color="primary" onClick={this.handleAccept.bind(this)}>
                     Accept
                 </Button>
                 <Button color="primary" onClick={this.props.onCancel}>

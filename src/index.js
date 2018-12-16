@@ -12,7 +12,7 @@ import Paper from '@material-ui/core/Paper';
 import { Provider } from 'react-redux'
 import store from "./storeConfig";
 
-import { FileTree } from "./containers/FileManager";
+import { FileManager } from "./containers/FileManager";
 
 
 
@@ -28,7 +28,7 @@ const App = () => {
             </AppBar>
             <div style={{marginTop: 48, padding: 8, display: "flex"}}>
                 <Paper>
-                    <FileTree/>
+                    <FileManager/>
                 </Paper>
             </div>
         </Fragment>
