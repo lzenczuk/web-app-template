@@ -1,7 +1,7 @@
 import {ListItem, ListItemIcon, ListItemText, withStyles} from "@material-ui/core";
 import {InsertDriveFile} from "@material-ui/icons";
 import React from "react";
-import {FileContextMenu} from "./FileContextMenu";
+import {FileManagerContextMenu} from "./FileManagerContextMenu";
 import {FileManagerDialog} from "./FileManagerDialog";
 
 const fileStyle = theme => ({
@@ -100,7 +100,7 @@ class FileInternal extends React.Component{
                          onContextMenu={this.handleRightClick.bind(this)}>
             <ListItemIcon classes={{root: classes.fileIconRoot}}><InsertDriveFile/></ListItemIcon>
             <ListItemText classes={{root: classes.textItemRoot, primary: classes.textItemPrimary}}>{name}</ListItemText>
-            <FileContextMenu
+            <FileManagerContextMenu
                 visible={this.state.contextMenuVisible}
                 left={this.state.x}
                 top={this.state.y}

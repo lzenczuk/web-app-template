@@ -2,7 +2,7 @@ import Paper from "@material-ui/core/Paper/Paper";
 import {List, ListItem, ListItemText} from "@material-ui/core";
 import React, {Fragment} from "react";
 
-export const FileContextMenu = (props) => {
+export const FileManagerContextMenu = (props) => {
     const {visible, top, left, onCancel } = props;
     const { onOperationSelected } = props;
 
@@ -15,7 +15,8 @@ export const FileContextMenu = (props) => {
         onCancel();
     };
 
-    const handleContextOperationSelected = (operation) => () => {
+    const handleContextOperationSelected = (operation) => (e) => {
+        e.preventDefault();
         onOperationSelected(operation)
     };
 

@@ -2,6 +2,8 @@ import {Collapse, ListItem, ListItemIcon, ListItemText, withStyles} from "@mater
 import {ArrowDropDown, ArrowRight, Folder as FolderIcon, FolderOpen} from "@material-ui/icons";
 import React, {Fragment} from "react";
 import {File} from "./File";
+import {FileManagerContextMenu} from "./FileManagerContextMenu";
+import {FileManagerDialog} from "./FileManagerDialog";
 
 
 const folderStyle = theme => ({
@@ -27,9 +29,89 @@ class FolderInternal extends React.Component {
         super(props);
 
         this.state = {
-            open: false
+            open: false,
+            contextMenuVisible: false,
+            fileDialogVisible: false,
         }
     }
+
+    handleClick(e){
+        e.preventDefault();
+
+        this.setState({
+            open: !this.state.open,
+            contextMenuVisible: false,
+            fileDialogVisible: false,
+        })
+    };
+
+    handleRightClick(e){
+        e.preventDefault();
+
+        this.setState({
+            open: this.state.open,
+            contextMenuVisible: true,
+            x: e.clientX,
+            y: e.clientY,
+        })
+    };
+
+    handleSelectedOperation(operation){
+        switch (operation) {
+            case "RENAME":
+                this.setState({
+                    open: this.state.open,
+                    contextMenuVisible: false,
+                    fileDialogVisible: true,
+                    operation: operation,
+                    confirmationOnly: false,
+                    title: "Rename folder "+this.props.name,
+                    label: "New name",
+                    value: this.props.name
+                });
+                break;
+            case "REMOVE":
+                this.setState({
+                    open: this.state.open,
+                    contextMenuVisible: false,
+                    fileDialogVisible: true,
+                    operation: operation,
+                    confirmationOnly: true,
+                    title: "Delete folder "+this.props.name,
+                });
+                break;
+        }
+    }
+
+    handleAcceptedOperation(param1){
+
+        switch (this.state.operation) {
+            case "RENAME":
+                const newName = param1;
+                this.props.onRename(this.props.parentId, newName);
+                break;
+            case "REMOVE":
+                this.props.onDelete(this.props.parentId);
+                break;
+        }
+
+        this.setState({
+            open: this.state.open,
+            contextMenuVisible: false,
+            fileDialogVisible: false,
+        });
+    }
+
+
+    handleCanceledOperation(){
+
+        this.setState({
+            open: this.state.open,
+            contextMenuVisible: false,
+            fileDialogVisible: false,
+        });
+    }
+
 
     render(){
         let {parentId, name, level, files, folders, classes, onRename, onDelete} = this.props;
@@ -60,19 +142,10 @@ class FolderInternal extends React.Component {
         const folderIcon = this.state.open === true ? <FolderOpen/> : <FolderIcon/>;
         const arrowIcon = this.state.open === true ? <ArrowDropDown/> : <ArrowRight/>;
 
-        const folderClick = () => {
-            this.setState({ open: !this.state.open })
-        };
-
-        const folderContextClick = (e) => {
-            e.preventDefault();
-            onFolderContextMenuClick(parentId, e.clientY, e.clientX)
-        };
-
         return (
             <Fragment>
                 <ListItem button classes={{root: classes.listItemRoot}} style={{paddingLeft: level * 16}}
-                          onContextMenu={folderContextClick} onClick={folderClick}>
+                          onContextMenu={this.handleRightClick.bind(this)} onClick={this.handleClick.bind(this)}>
                     <ListItemIcon classes={{root: classes.iconItemRoot}}>{arrowIcon}</ListItemIcon>
                     <ListItemIcon classes={{root: classes.iconItemRoot}}>{folderIcon}</ListItemIcon>
                     <ListItemText
@@ -82,6 +155,24 @@ class FolderInternal extends React.Component {
                     {foldersComponents}
                     {filesComponents}
                 </Collapse>
+
+                <FileManagerContextMenu
+                    visible={this.state.contextMenuVisible}
+                    left={this.state.x}
+                    top={this.state.y}
+                    onCancel={this.handleCanceledOperation.bind(this)}
+                    onOperationSelected={this.handleSelectedOperation.bind(this)}
+                />
+
+                <FileManagerDialog
+                    visible={this.state.fileDialogVisible}
+                    confirmationOnly={this.state.confirmationOnly}
+                    title={this.state.title}
+                    label={this.state.label}
+                    value={name}
+                    onAccept={this.handleAcceptedOperation.bind(this)}
+                    onCancel={this.handleCanceledOperation.bind(this)}/>
+
             </Fragment>
         )
     }
