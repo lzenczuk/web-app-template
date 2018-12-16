@@ -6,7 +6,7 @@ import TextField from "@material-ui/core/TextField/TextField";
 import DialogActions from "@material-ui/core/DialogActions/DialogActions";
 import Button from "@material-ui/core/Button/Button";
 
-export class RenameDialog extends React.Component {
+export class NameDialog extends React.Component {
 
     constructor(props) {
         super(props);
@@ -24,14 +24,24 @@ export class RenameDialog extends React.Component {
 
     render() {
 
+        if(!this.props.visible){
+            return null
+        }
+
         let name = this.state.name;
 
-        const onRenameClick = (e) => {
-            this.props.onRename(this.props.parentId, this.state.name)
+        const onAcceptClick = (e) => {
+            this.props.onAccept(this.state.name)
         };
 
+        let title=<DialogTitle>New file name</DialogTitle>;
+        if(this.props.rename){
+            title = <DialogTitle>Rename file {this.props.name}</DialogTitle>
+        }
+
+
         return <Dialog open={true}>
-            <DialogTitle>Rename file {this.props.name}</DialogTitle>
+            {title}
             <DialogContent>
                 <TextField
                     autoFocus
@@ -45,8 +55,8 @@ export class RenameDialog extends React.Component {
                 />
             </DialogContent>
             <DialogActions>
-                <Button color="primary" onClick={onRenameClick}>
-                    Rename
+                <Button color="primary" onClick={onAcceptClick}>
+                    Accept
                 </Button>
                 <Button color="primary" onClick={this.props.onCancel}>
                     Cancel

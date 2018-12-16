@@ -32,7 +32,7 @@ class FolderInternal extends React.Component {
     }
 
     render(){
-        let {parentId, name, level, files, folders, classes, onFolderContextMenuClick, onFileContextMenuClick} = this.props;
+        let {parentId, name, level, files, folders, classes, onRename} = this.props;
 
         if (files === undefined) {
             files = []
@@ -49,13 +49,12 @@ class FolderInternal extends React.Component {
         const foldersComponents = folders.map( folder => {
             return <Folder key={parentId + '/' + folder.name} parentId={parentId + '/' + folder.name} name={folder.name}
                            level={level + 1}  files={folder.files} folders={folder.folders}
-                           onFolderContextMenuClick={onFolderContextMenuClick}
-                           onFileContextMenuClick={onFileContextMenuClick}/>;
+                           onRename={onRename}/>;
         });
 
         const filesComponents = files.map( file => {
             return <File key={parentId + '/' + file.name} parentId={parentId + '/' + file.name} name={file.name}
-                         level={level + 1} onFileContextMenuClick={onFileContextMenuClick}/>;
+                         level={level + 1} onRename={onRename}/>;
         });
 
         const folderIcon = this.state.open === true ? <FolderOpen/> : <FolderIcon/>;
