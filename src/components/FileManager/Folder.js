@@ -70,6 +70,30 @@ class FolderInternal extends React.Component {
                     value: this.props.name
                 });
                 break;
+            case "NEW_FOLDER":
+                this.setState({
+                    open: this.state.open,
+                    contextMenuVisible: false,
+                    fileDialogVisible: true,
+                    operation: operation,
+                    confirmationOnly: false,
+                    title: "New folder",
+                    label: "Name",
+                    value: ""
+                });
+                break;
+            case "NEW_FILE":
+                this.setState({
+                    open: this.state.open,
+                    contextMenuVisible: false,
+                    fileDialogVisible: true,
+                    operation: operation,
+                    confirmationOnly: false,
+                    title: "New file",
+                    label: "Name",
+                    value: ""
+                });
+                break;
             case "REMOVE":
                 this.setState({
                     open: this.state.open,
@@ -86,6 +110,14 @@ class FolderInternal extends React.Component {
     handleAcceptedOperation(param1){
 
         switch (this.state.operation) {
+            case "NEW_FOLDER":
+                const folderName = param1;
+                this.props.onNewFolder(this.props.parentId, folderName);
+                break;
+            case "NEW_FILE":
+                const fileName = param1;
+                this.props.onNewFile(this.props.parentId, fileName);
+                break;
             case "RENAME":
                 const newName = param1;
                 this.props.onRename(this.props.parentId, newName);
@@ -114,7 +146,7 @@ class FolderInternal extends React.Component {
 
 
     render(){
-        let {parentId, name, level, files, folders, classes, onRename, onDelete} = this.props;
+        let {parentId, name, level, files, folders, classes, onRename, onDelete, onNewFolder, onNewFile} = this.props;
 
         if (files === undefined) {
             files = []
@@ -131,7 +163,7 @@ class FolderInternal extends React.Component {
         const foldersComponents = folders.map( folder => {
             return <Folder key={parentId + '/' + folder.name} parentId={parentId + '/' + folder.name} name={folder.name}
                            level={level + 1}  files={folder.files} folders={folder.folders}
-                           onRename={onRename} onDelete={onDelete}/>;
+                           onRename={onRename} onDelete={onDelete} onNewFolder={onNewFolder} onNewFile={onNewFile}/>;
         });
 
         const filesComponents = files.map( file => {

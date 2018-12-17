@@ -1,5 +1,5 @@
 import _ from "lodash";
-import {REMOVE, RENAME} from "./actions"
+import {NEW_FILE, NEW_FOLDER, REMOVE, RENAME} from "./actions"
 
 let initState = {
     root: {
@@ -176,6 +176,72 @@ const fileManager = (state=initState, action) => {
             if(pathArray.length!==0 && pathArray[0]===newState.root.name){
 
                 removeTreeNodeByPath(newState.root, pathArray.slice(1));
+
+            }
+
+            return newState;
+
+        }
+
+        case NEW_FILE: {
+            let newState = _.cloneDeep(state);
+
+            const { parentId, newName } = action;
+
+            let pathArray = parentIdToPathArray(parentId);
+
+            if(pathArray.length===1 && pathArray[0]===newState.root.name){
+
+                newState.root.files.push({
+                    type: "FILE",
+                    name: newName,
+                    content: ""
+                })
+
+            }else if(pathArray.length>1 && pathArray[0]===newState.root.name){
+
+                let parent = findTreeNodeByPath(newState.root, pathArray.slice(1));
+                if(parent!==undefined){
+                    parent.files.push({
+                        type: "FILE",
+                        name: newName,
+                        content: ""
+                    })
+                }
+
+            }
+
+            return newState;
+
+        }
+
+        case NEW_FOLDER: {
+            let newState = _.cloneDeep(state);
+
+            const { parentId, newName } = action;
+
+            let pathArray = parentIdToPathArray(parentId);
+
+            if(pathArray.length===1 && pathArray[0]===newState.root.name){
+
+                newState.root.folders.push({
+                    type: "FOLDER",
+                    name: newName,
+                    folders: [],
+                    files: []
+                })
+
+            }else if(pathArray.length>1 && pathArray[0]===newState.root.name){
+
+                let parent = findTreeNodeByPath(newState.root, pathArray.slice(1));
+                if(parent!==undefined){
+                    parent.folders.push({
+                            type: "FOLDER",
+                            name: newName,
+                            folders: [],
+                            files: []
+                        })
+                }
 
             }
 
