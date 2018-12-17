@@ -42,6 +42,11 @@ class FileInternal extends React.Component{
         })
     };
 
+    handleDoubleClick(e){
+        e.preventDefault();
+        this.props.onSelect(this.props.parentId)
+    };
+
     handleSelectedOperation(operation){
         switch (operation) {
             case "RENAME":
@@ -96,8 +101,13 @@ class FileInternal extends React.Component{
 
         const { name, level, classes } = this.props;
 
-        return <ListItem button classes={{root: classes.listItemRoot}} style={{paddingLeft: level * 20}}
-                         onContextMenu={this.handleRightClick.bind(this)}>
+        return <ListItem
+            button
+            classes={{root: classes.listItemRoot}}
+            style={{paddingLeft: level * 20}}
+            onContextMenu={this.handleRightClick.bind(this)}
+            onDoubleClick={this.handleDoubleClick.bind(this)}
+        >
             <ListItemIcon classes={{root: classes.fileIconRoot}}><InsertDriveFile/></ListItemIcon>
             <ListItemText classes={{root: classes.textItemRoot, primary: classes.textItemPrimary}}>{name}</ListItemText>
             <FileManagerContextMenu

@@ -1,6 +1,6 @@
 import {connect} from "react-redux";
 
-import {newFile, newFolder, remove, rename} from "../../modules/fileManager/actions";
+import {newFile, newFolder, remove, rename, select} from "../../modules/fileManager/actions";
 
 import {FileManager as FileManagerComponent} from "../../components/FileManager";
 
@@ -21,6 +21,9 @@ const mapDispatchToProps = dispatch => {
         onNewFolder: (parentId, newName) => {
             dispatch(newFolder(parentId, newName))
         },
+        onSelect: (parentId) => {
+            dispatch(select(parentId))
+        }
     }
 };
 

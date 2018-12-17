@@ -1,13 +1,13 @@
-import {all, takeEvery} from "redux-saga/effects";
-import {RENAME} from "../fileManager/actions";
+import {all, put, takeEvery} from "redux-saga/effects";
+import { SELECT } from "../fileManager/actions";
 
-function* rename(action){
-    console.log("-------------> rename: "+JSON.stringify(action))
+function* select(action){
+    console.log("-------------> select: "+JSON.stringify(action))
     yield put({type: 'SELECTED', somePayload: 123})
 }
 
 function* watchRename() {
-    yield takeEvery(RENAME, rename)
+    yield takeEvery(SELECT, select)
 }
 
 export default function* rootSaga() {
