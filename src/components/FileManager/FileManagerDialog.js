@@ -16,28 +16,44 @@ export class FileManagerDialog extends React.Component {
         }
     }
 
+    componentWillReceiveProps(nextProps) {
+        if (nextProps.value !== this.props.value) {
+            this.setState({
+                value: nextProps.value
+            })
+        }
+    }
+
     handleValueChange(event) {
         this.setState({
             value: event.target.value
         })
     }
 
-    handleAccept(){
-        if(this.props.confirmationOnly){
+    handleAccept() {
+        if (this.props.confirmationOnly) {
             this.props.onAccept()
-        }else{
+        } else {
             this.props.onAccept(this.state.value)
         }
     }
 
+    handleCancel() {
+        this.setState({
+            value: this.props.value
+        });
+
+        this.props.onCancel()
+    }
+
     render() {
 
-        if(!this.props.visible){
+        if (!this.props.visible) {
             return null
         }
 
         let valueField = null;
-        if(!this.props.confirmationOnly){
+        if (!this.props.confirmationOnly) {
             valueField = <DialogContent>
                 <TextField
                     autoFocus
@@ -59,7 +75,7 @@ export class FileManagerDialog extends React.Component {
                 <Button color="primary" onClick={this.handleAccept.bind(this)}>
                     Accept
                 </Button>
-                <Button color="primary" onClick={this.props.onCancel}>
+                <Button color="primary" onClick={this.handleCancel.bind(this)}>
                     Cancel
                 </Button>
             </DialogActions>
