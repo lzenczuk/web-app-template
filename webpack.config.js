@@ -1,4 +1,5 @@
 const HtmlWebPackPlugin = require("html-webpack-plugin");
+const MonacoWebpackPlugin = require('monaco-editor-webpack-plugin');
 
 module.exports = {
     module: {
@@ -9,6 +10,10 @@ module.exports = {
                 use: {
                     loader: "babel-loader"
                 }
+            },
+            {
+                test: /\.css$/,
+                use: ['style-loader', 'css-loader']
             }
         ]
     },
@@ -16,7 +21,8 @@ module.exports = {
         new HtmlWebPackPlugin({
             template: "./src/index.html",
             filename: "./index.html"
-        })
+        }),
+        new MonacoWebpackPlugin()
     ],
     entry: {
         js: ['@babel/polyfill', './src/index.js'],

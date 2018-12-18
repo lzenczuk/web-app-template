@@ -13,6 +13,8 @@ import { Provider } from 'react-redux'
 import store from "./config";
 
 import { FileManager } from "./containers/FileManager";
+import Grid from "@material-ui/core/Grid/Grid";
+import MonacoEditor from "react-monaco-editor";
 
 
 
@@ -26,11 +28,18 @@ const App = () => {
                     <Button>Login</Button>
                 </ToolBar>
             </AppBar>
-            <div style={{marginTop: 48, padding: 8, display: "flex"}}>
-                <Paper>
-                    <FileManager/>
-                </Paper>
-            </div>
+            <Grid container direction="row" justify="flex-start" alignItems="stretch" spacing={8}>
+                <Grid item xs={3} container alignItems="stretch">
+                    <Paper style={{flexGrow: 1}}>
+                        <FileManager/>
+                    </Paper>
+                </Grid>
+                <Grid item xs={9} container alignItems="stretch">
+                    <Paper style={{flexGrow: 1}}>
+                        <MonacoEditor language="javascript"/>
+                    </Paper>
+                </Grid>
+            </Grid>
         </Fragment>
     </Provider>
 };
