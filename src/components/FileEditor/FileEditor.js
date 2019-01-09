@@ -13,22 +13,28 @@ export class FileEditor extends React.Component {
         super(props)
     }
 
-    onChange(newValue){
-        console.log("Change: "+newValue)
+    onChange(newValue, e){
+
+        this.props.onChange(this.props.fileId, newValue)
+
     }
 
     render(){
-        return <AceEditor
-            mode="c_cpp"
-            theme="textmate"
-            name="UNIQUE_ID_OF_DIV"
-            value={this.props.content}
-            onChange={this.onChange.bind(this)}
-            editorProps={{$blockScrolling: true}}
-            enableBasicAutocompletion={true}
-            enableLiveAutocompletion={true}
-            enableSnippets={true}
-            style={{flexGrow: 1, height: "100%"}}
-        />
+        if(this.props.active){
+            return <AceEditor
+                mode="c_cpp"
+                theme="textmate"
+                name="UNIQUE_ID_OF_DIV"
+                value={this.props.content}
+                onChange={this.onChange.bind(this)}
+                editorProps={{$blockScrolling: true}}
+                enableBasicAutocompletion={true}
+                enableLiveAutocompletion={true}
+                enableSnippets={true}
+                style={{flexGrow: 1, height: "100%"}}
+            />
+        }else{
+            return null
+        }
     }
 }

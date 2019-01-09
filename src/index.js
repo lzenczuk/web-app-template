@@ -13,7 +13,7 @@ import { Provider } from 'react-redux'
 import store from "./config";
 
 import { FileManager } from "./containers/FileManager";
-import { FileEditor } from "./components/FileEditor";
+import { FileEditor } from "./containers/FileEditor";
 import Grid from "@material-ui/core/Grid/Grid";
 
 

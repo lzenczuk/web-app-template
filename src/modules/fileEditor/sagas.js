@@ -1,17 +1,30 @@
 import {all, put, takeEvery} from "redux-saga/effects";
-import { SELECT } from "../fileManager/actions";
+import {NEW_FILE, SELECT} from "../fileManager/actions";
+import {createFile,selectFile} from "./actions";
 
 function* select(action){
-    console.log("-------------> select: "+JSON.stringify(action))
-    yield put({type: 'SELECTED', somePayload: 123})
+    const { parentId } = action;
+
+    yield put(selectFile(parentId))
 }
 
-function* watchRename() {
+function* newFile(action){
+    const { parentId, newName } = action;
+
+    yield put(createFile(parentId+"/"+newName, "Test content of file "+newName))
+}
+
+function* watchSelect() {
     yield takeEvery(SELECT, select)
+}
+
+function* watchNewFile() {
+    yield takeEvery(NEW_FILE, newFile)
 }
 
 export default function* rootSaga() {
     yield all([
-        watchRename()
+        watchSelect(),
+        watchNewFile()
     ])
 }
