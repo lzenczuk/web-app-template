@@ -13,19 +13,11 @@ import { Provider } from 'react-redux'
 import store from "./config";
 
 import { FileManager } from "./containers/FileManager";
+import { FileEditor } from "./components/FileEditor";
 import Grid from "@material-ui/core/Grid/Grid";
 
-import AceEditor from 'react-ace';
-import 'brace/mode/c_cpp';
-import 'brace/snippets/c_cpp';
-import 'brace/theme/textmate';
-import 'brace/ext/language_tools';
 
 const App = () => {
-
-    const onChange = (newValue) => {
-        console.log("----------> Editor: "+newValue)
-    };
 
     return <Provider store={store}>
         <Fragment>
@@ -43,18 +35,7 @@ const App = () => {
                     </Paper>
                 </Grid>
                 <Grid item xs={9} container alignItems="stretch">
-                        <AceEditor
-                            mode="c_cpp"
-                            theme="textmate"
-                            name="UNIQUE_ID_OF_DIV"
-                            value={"Test, test, test"}
-                            onChange={onChange}
-                            editorProps={{$blockScrolling: true}}
-                            enableBasicAutocompletion={true}
-                            enableLiveAutocompletion={true}
-                            enableSnippets={true}
-                            style={{flexGrow: 1, height: "100%"}}
-                        />
+                    <FileEditor />
                 </Grid>
             </Grid>
         </Fragment>
