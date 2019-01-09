@@ -10,13 +10,30 @@ import 'brace/ext/language_tools';
 export class FileEditor extends React.Component {
 
     constructor(props){
-        super(props)
+        super(props);
+
+        this.state = {
+            content: props.content
+        }
     }
 
-    onChange(newValue, e){
+    onChange(newValue){
 
-        this.props.onChange(this.props.fileId, newValue)
+        this.setState({
+            content: newValue
+        });
+    }
 
+    componentWillReceiveProps(nextProps, nextContext){
+
+        // because we switching file dispatch update action on current one
+        if(this.props.fileId!==nextProps.fileId){
+            this.props.onChange(this.props.fileId, this.state.content)
+        }
+
+        this.setState({
+            content: nextProps.content
+        })
     }
 
     render(){
@@ -25,7 +42,7 @@ export class FileEditor extends React.Component {
                 mode="c_cpp"
                 theme="textmate"
                 name="UNIQUE_ID_OF_DIV"
-                value={this.props.content}
+                value={this.state.content}
                 onChange={this.onChange.bind(this)}
                 editorProps={{$blockScrolling: true}}
                 enableBasicAutocompletion={true}
