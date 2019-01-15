@@ -222,7 +222,7 @@ class FolderInternal extends React.Component {
                     confirmationOnly={this.state.confirmationOnly}
                     title={this.state.title}
                     label={this.state.label}
-                    value={name}
+                    value={this.state.value}
                     onAccept={this.handleAcceptedOperation.bind(this)}
                     onCancel={this.handleCanceledOperation.bind(this)}/>
 
