@@ -25,6 +25,7 @@ const App = () => {
             <AppBar>
                 <ToolBar variant="dense">
                     <Typography variant="h6" style={{flexGrow: 1}}>Hello</Typography>
+                    <Typography variant="caption">{BRANCH} {COMMITHASH}</Typography>
                     <Button>Login</Button>
                 </ToolBar>
             </AppBar>

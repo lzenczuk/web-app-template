@@ -1,4 +1,9 @@
+const webpack = require('webpack');
+
 const HtmlWebPackPlugin = require("html-webpack-plugin");
+const GitRevisionPlugin = require('git-revision-webpack-plugin');
+
+const gitRevisionPlugin = new GitRevisionPlugin();
 
 module.exports = {
     module: {
@@ -16,6 +21,11 @@ module.exports = {
         new HtmlWebPackPlugin({
             template: "./src/index.html",
             filename: "./index.html"
+        }),
+        new webpack.DefinePlugin({
+            'VERSION': JSON.stringify(gitRevisionPlugin.version()),
+            'COMMITHASH': JSON.stringify(gitRevisionPlugin.commithash()),
+            'BRANCH': JSON.stringify(gitRevisionPlugin.branch()),
         })
     ],
     entry: {
