@@ -1,4 +1,4 @@
-import {CREATE_FILE, SELECT_FILE, UPDATE_FILE, NEW_FILE, NEW_FOLDER, REMOVE, RENAME} from "./actions";
+import {UPDATE_FILE, NEW_FILE, NEW_FOLDER, REMOVE, RENAME, SELECT} from "./actions";
 import _ from "lodash";
 
 
@@ -10,8 +10,6 @@ let initState = {
         files: []
     },
     active: null,
-    files: {}
-
 };
 
 const projectIDEReducer = (state=initState, action) => {
@@ -68,7 +66,7 @@ const projectIDEReducer = (state=initState, action) => {
                 newState.root.files.push({
                     type: "FILE",
                     name: newName,
-                    content: ""
+                    content: "Test content of file "+newName
                 })
 
             }else if(pathArray.length>1 && pathArray[0]===newState.root.name){
@@ -78,11 +76,12 @@ const projectIDEReducer = (state=initState, action) => {
                     parent.files.push({
                         type: "FILE",
                         name: newName,
-                        content: ""
+                        content: "Test content of file "+newName
                     })
                 }
-
             }
+
+            newState.active = parentId + "/" + newName;
 
             return newState;
 
@@ -122,13 +121,13 @@ const projectIDEReducer = (state=initState, action) => {
 
         }
 
-        case SELECT_FILE: {
+        case SELECT: {
 
             let newState = _.cloneDeep(state);
 
-            const { fileId } = action;
+            const { parentId } = action;
 
-            newState.active = fileId;
+            newState.active = parentId;
 
             return newState;
         }
@@ -139,25 +138,17 @@ const projectIDEReducer = (state=initState, action) => {
 
             const { fileId, content } = action;
 
-            if(newState.files.hasOwnProperty(fileId)){
-                newState.files[fileId].content=content;
+            let pathArray = parentIdToPathArray(fileId);
+
+            if(pathArray.length!==0 && pathArray[0]===newState.root.name){
+
+                const element = findTreeNodeByPath(newState.root, pathArray.slice(1));
+
+                if(element!==undefined){
+                    element.content=content
+                }
+
             }
-
-            return newState;
-        }
-
-        case CREATE_FILE: {
-
-            let newState = _.cloneDeep(state);
-
-            const { fileId, content } = action;
-
-            newState.files[fileId] = {
-                content: content
-            };
-
-            newState.active = fileId;
-
             return newState;
         }
 

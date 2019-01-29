@@ -3,15 +3,15 @@ import {NEW_FILE, SELECT} from "./actions";
 import {createFile,selectFile} from "./actions";
 
 function* select(action){
-    const { parentId } = action;
+    //const { parentId } = action;
 
-    yield put(selectFile(parentId))
+    //yield put(selectFile(parentId))
 }
 
 function* newFile(action){
-    const { parentId, newName } = action;
+    //const { parentId, newName } = action;
 
-    yield put(createFile(parentId+"/"+newName, "Test content of file "+newName))
+    //yield put(createFile(parentId+"/"+newName, "Test content of file "+newName))
 }
 
 function* watchSelect() {
