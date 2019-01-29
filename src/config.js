@@ -1,12 +1,13 @@
 import {applyMiddleware, combineReducers, createStore} from 'redux';
 import createSagaMiddleware from 'redux-saga'
 
-import fileManager from "./modules/fileManager/reducers"
-import rootSaga from "./modules/fileEditor/sagas";
-import fileEditor from "./modules/fileEditor/reducers";
+//import fileManager from "./modules/fileManager/reducers"
+import rootSaga from "./modules/projectIDE/sagas";
+//import fileEditor from "./modules/fileEditor/reducers";
+import projectIDEReducer from "./modules/projectIDE/reducers";
 
 
-const rootReducer = combineReducers({fileManager: fileManager, fileEditor: fileEditor});
+const rootReducer = combineReducers({project: projectIDEReducer});
 
 const sagaMiddleware = createSagaMiddleware(rootSaga);
 
