@@ -1,5 +1,5 @@
 import {all, put, takeEvery} from "redux-saga/effects";
-import {NEW_FILE, SELECT} from "../fileManager/actions";
+import {NEW_FILE, SELECT} from "./actions";
 import {createFile,selectFile} from "./actions";
 
 function* select(action){
