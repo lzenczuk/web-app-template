@@ -109,14 +109,6 @@ export class Folder {
         }
     }
 
-    rename(path, name){
-        let node = this.findByPath(path);
-
-        if(node !== undefined){
-            node.setName(name)
-        }
-    }
-
     delete(path){
         let node = this.findByPath(path);
 

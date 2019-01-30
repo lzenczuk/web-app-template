@@ -17,7 +17,10 @@ const projectIDEReducer = (state=initState, action) => {
 
             const { parentId, newName } = action;
 
-            newState.root.rename(parentId, newName);
+            let node = newState.root.findByPath(parentId);
+            if (node !== undefined && node.parent !== undefined) {
+                node.setName(newName)
+            }
 
             return newState;
         }
