@@ -124,3 +124,68 @@ export class Folder {
         }
     }
 }
+
+export class ActivePath {
+    constructor(){
+        this.__path=undefined;
+    }
+
+    isActivePathSet(){
+        return this.__path!==undefined
+    }
+
+    getActivePath(){
+        return this.__path
+    }
+
+    setActivePath(newPath){
+        this.__path = newPath
+    }
+
+    clear(){
+        this.__path = undefined
+    }
+
+    isAffectedByRename(pathToRename){
+
+        if(this.__path===undefined){
+            return false;
+        }
+
+        if(pathToRename===undefined){
+            return false;
+        }
+
+        if(pathToRename.length===0){
+            return false;
+        }
+
+        if(this.__path===pathToRename){
+            return true;
+        }
+
+        let pathToRenameArray = pathToRename.split("/").filter( v => v!=="");
+        let pathArray =  this.__path.split("/").filter( v => v!=="");
+
+        if(pathToRenameArray.length > pathArray.length){
+            return false;
+        }
+
+        for(let i=0;i<pathToRenameArray.length;i++){
+            if(pathToRenameArray[i]!==pathArray[i]){
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    generateRenamedPath(activePath, path, newName){
+        let activePathArray =  activePath.split("/").filter( v => v!=="");
+        let pathArray =  path.split("/").filter( v => v!=="");
+
+        activePathArray[pathArray.length-1] = newName;
+
+        return "/"+activePathArray.join("/")
+    }
+}

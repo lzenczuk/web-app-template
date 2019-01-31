@@ -1,10 +1,10 @@
-import {UPDATE_FILE, NEW_FILE, NEW_FOLDER, REMOVE, RENAME, SELECT} from "./actions";
+import {UPDATE_FILE, NEW_FILE, NEW_FOLDER, REMOVE, RENAME, SELECT, CLEAR_SELECTION} from "./actions";
 import _ from "lodash";
-import {Folder} from "./model";
+import {ActivePath, Folder} from "./model";
 
 let initState = {
     root: new Folder("Project name"),
-    active: null,
+    active: new ActivePath(),
 };
 
 const projectIDEReducer = (state=initState, action) => {
@@ -42,7 +42,7 @@ const projectIDEReducer = (state=initState, action) => {
             const { parentId, newName } = action;
 
             newState.root.createFile(parentId, newName, "Test content of file "+newName);
-            newState.active = parentId + "/" + newName;
+            newState.active.setActivePath(parentId + "/" + newName);
 
             return newState;
 
@@ -65,7 +65,15 @@ const projectIDEReducer = (state=initState, action) => {
 
             const { parentId } = action;
 
-            newState.active = parentId;
+            newState.active.setActivePath(parentId);
+
+            return newState;
+        }
+
+        case CLEAR_SELECTION: {
+            let newState = _.cloneDeep(state);
+
+            newState.active.clear();
 
             return newState;
         }

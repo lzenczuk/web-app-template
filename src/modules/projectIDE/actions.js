@@ -1,11 +1,17 @@
 export const RENAME = 'RENAME';
+export const RENAME_REQUEST = 'RENAME_REQUEST';
 export const REMOVE = 'REMOVE';
 export const NEW_FILE = 'NEW_FILE';
 export const NEW_FOLDER = 'NEW_FOLDER';
 export const SELECT = 'SELECT';
+export const CLEAR_SELECTION = 'CLEAR_SELECTION';
 export const SELECT_FILE = 'SELECT_FILE';
 export const UPDATE_FILE = 'UPDATE_FILE';
 export const CREATE_FILE = 'CREATE_FILE';
+
+export const rename_request = (parentId, newName) => {
+    return { type: RENAME_REQUEST , parentId: parentId, newName: newName }
+};
 
 export const rename = (parentId, newName) => {
     return { type: RENAME , parentId: parentId, newName: newName }
@@ -25,6 +31,10 @@ export const newFolder = (parentId, newName) => {
 
 export const select = (parentId) => {
     return { type: SELECT , parentId: parentId}
+};
+
+export const clearSelection = () => {
+    return { type: CLEAR_SELECTION}
 };
 
 export const selectFile = (fileId) => {

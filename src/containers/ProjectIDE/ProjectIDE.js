@@ -1,6 +1,6 @@
 import {connect} from "react-redux";
 
-import {newFile, newFolder, remove, rename, select, updateFile} from "../../modules/projectIDE/actions";
+import {newFile, newFolder, remove, rename_request, select, updateFile} from "../../modules/projectIDE/actions";
 
 import {ProjectIDE as ProjectIDEComponent} from "../../components/ProjectIDE";
 
@@ -42,11 +42,11 @@ const mapStateToProps = state => {
 
     let project = state.project;
 
-    if(project.active!=null){
+    if(project.active.isActivePathSet()){
 
         let content = "";
 
-        const activeFile = findNode(project.root, project.active);
+        const activeFile = findNode(project.root, project.active.getActivePath());
 
         if(activeFile!==undefined){
             content = activeFile.content
@@ -55,7 +55,7 @@ const mapStateToProps = state => {
         let result = {
             root: project.root,
             active: true,
-            fileId: project.active,
+            fileId: project.active.getActivePath(),
             content: content
         };
 
@@ -71,7 +71,7 @@ const mapStateToProps = state => {
 const mapDispatchToProps = dispatch => {
     return {
         onRename: (parentId, newName) => {
-            dispatch(rename(parentId, newName))
+            dispatch(rename_request(parentId, newName))
         },
         onDelete: (parentId) => {
             dispatch(remove(parentId))

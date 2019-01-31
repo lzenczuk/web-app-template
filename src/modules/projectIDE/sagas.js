@@ -1,30 +1,41 @@
-import {all, put, takeEvery} from "redux-saga/effects";
-import {NEW_FILE, SELECT} from "./actions";
-import {createFile,selectFile} from "./actions";
+import {all, put, takeEvery, select as selectState} from "redux-saga/effects";
+import {RENAME_REQUEST} from "./actions";
+import {clearSelection, rename, select} from "./actions";
 
-function* select(action){
-    //const { parentId } = action;
+const delay = (ms) => new Promise(res => setTimeout(res, ms));
 
-    //yield put(selectFile(parentId))
+function* rename_request(action){
+
+    const { parentId, newName } = action;
+
+    const state = yield selectState();
+
+    let active = state.project.active;
+
+    const originalPath = active.getActivePath();
+
+    if(active.isAffectedByRename(parentId)){
+        yield put(clearSelection());
+        yield delay(100);
+        yield put(rename(parentId, newName));
+        yield delay(100);
+        yield put(select(active.generateRenamedPath(originalPath, parentId, newName)))
+    }else{
+        yield put(clearSelection());
+        yield delay(100);
+        yield put(rename(parentId, newName));
+        yield delay(100);
+        yield put(select(originalPath))
+    }
+
 }
 
-function* newFile(action){
-    //const { parentId, newName } = action;
-
-    //yield put(createFile(parentId+"/"+newName, "Test content of file "+newName))
-}
-
-function* watchSelect() {
-    yield takeEvery(SELECT, select)
-}
-
-function* watchNewFile() {
-    yield takeEvery(NEW_FILE, newFile)
+function* watchRename() {
+    yield takeEvery(RENAME_REQUEST, rename_request)
 }
 
 export default function* rootSaga() {
     yield all([
-        watchSelect(),
-        watchNewFile()
+        watchRename()
     ])
 }

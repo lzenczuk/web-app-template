@@ -1,4 +1,4 @@
-import {Folder} from "./model";
+import {ActivePath, Folder} from "./model";
 
 test("create file in root folder", () => {
 
@@ -125,4 +125,51 @@ test("find by path", () => {
     expect(test_f4).toBeUndefined();
 });
 
+test("create active path", () => {
 
+    let ap = new ActivePath();
+
+    expect(ap.isActivePathSet()).toBe(false);
+    expect(ap.getActivePath()).toBeUndefined();
+});
+
+test("set active path", () => {
+
+    let ap = new ActivePath();
+
+    ap.setActivePath("/project");
+
+    expect(ap.isActivePathSet()).toBe(true);
+    expect(ap.getActivePath()).toBeDefined();
+    expect(ap.getActivePath()).toBe("/project");
+});
+
+test("is active path affected by rename", () => {
+
+    let ap = new ActivePath();
+
+    ap.setActivePath("/project/folder1/folder2/file.cpp");
+
+    expect(ap.isAffectedByRename("/project")).toBe(true);
+    expect(ap.isAffectedByRename("/project/folder1")).toBe(true);
+    expect(ap.isAffectedByRename("/project/folder1/folder2")).toBe(true);
+    expect(ap.isAffectedByRename("/project/folder1/folder2/file.cpp")).toBe(true);
+
+    expect(ap.isAffectedByRename()).toBe(false);
+    expect(ap.isAffectedByRename("")).toBe(false);
+    expect(ap.isAffectedByRename("/proj")).toBe(false);
+    expect(ap.isAffectedByRename("/project/folder")).toBe(false);
+    expect(ap.isAffectedByRename("/project/folder1/folder")).toBe(false);
+    expect(ap.isAffectedByRename("/project/folder1/folder2/file")).toBe(false);
+    expect(ap.isAffectedByRename("/project/folder1/folder2/file.cppc")).toBe(false);
+    expect(ap.isAffectedByRename("/project/folder1/folder2/file.cpp/something")).toBe(false);
+});
+
+test("generate renamed path", () => {
+
+    let ap = new ActivePath();
+
+    expect(ap.generateRenamedPath("/project/file.cpp", "/project/file.cpp", "file.hpp")).toBe("/project/file.hpp");
+    expect(ap.generateRenamedPath("/project/folder/file.cpp", "/project/folder/file.cpp", "file.hpp")).toBe("/project/folder/file.hpp");
+    expect(ap.generateRenamedPath("/project/folder/file.cpp", "/project/folder", "proxy")).toBe("/project/proxy/file.cpp");
+});
