@@ -1,50 +1,31 @@
 export const RENAME = 'RENAME';
-export const RENAME_REQUEST = 'RENAME_REQUEST';
 export const REMOVE = 'REMOVE';
 export const NEW_FILE = 'NEW_FILE';
 export const NEW_FOLDER = 'NEW_FOLDER';
 export const SELECT = 'SELECT';
-export const CLEAR_SELECTION = 'CLEAR_SELECTION';
-export const SELECT_FILE = 'SELECT_FILE';
 export const UPDATE_FILE = 'UPDATE_FILE';
-export const CREATE_FILE = 'CREATE_FILE';
 
-export const rename_request = (parentId, newName) => {
-    return { type: RENAME_REQUEST , parentId: parentId, newName: newName }
+
+export const rename = (id, name) => {
+    return { type: RENAME , id: id, name: name }
 };
 
-export const rename = (parentId, newName) => {
-    return { type: RENAME , parentId: parentId, newName: newName }
+export const remove = (id) => {
+    return { type: REMOVE , id: id }
 };
 
-export const remove = (parentId) => {
-    return { type: REMOVE , parentId: parentId }
+export const newFile = (parentId, name) => {
+    return { type: NEW_FILE , parentId: parentId, name: name}
 };
 
-export const newFile = (parentId, newName) => {
-    return { type: NEW_FILE , parentId: parentId, newName: newName}
+export const newFolder = (parentId, name) => {
+    return { type: NEW_FOLDER , parentId: parentId, name: name}
 };
 
-export const newFolder = (parentId, newName) => {
-    return { type: NEW_FOLDER , parentId: parentId, newName: newName}
+export const select = (id) => {
+    return { type: SELECT , id: id}
 };
 
-export const select = (parentId) => {
-    return { type: SELECT , parentId: parentId}
-};
-
-export const clearSelection = () => {
-    return { type: CLEAR_SELECTION}
-};
-
-export const selectFile = (fileId) => {
-    return { type: SELECT_FILE , fileId: fileId }
-};
-
-export const updateFile = (fileId, content) => {
-    return { type: UPDATE_FILE , fileId: fileId, content: content }
-};
-
-export const createFile = (fileId, content) => {
-    return { type: CREATE_FILE , fileId: fileId, content: content }
+export const updateFile = (id, content) => {
+    return { type: UPDATE_FILE , id: id, content: content }
 };

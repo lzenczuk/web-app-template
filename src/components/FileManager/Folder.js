@@ -112,18 +112,18 @@ class FolderInternal extends React.Component {
         switch (this.state.operation) {
             case "NEW_FOLDER":
                 const folderName = param1;
-                this.props.onNewFolder(this.props.parentId, folderName);
+                this.props.onNewFolder(this.props.id, folderName);
                 break;
             case "NEW_FILE":
                 const fileName = param1;
-                this.props.onNewFile(this.props.parentId, fileName);
+                this.props.onNewFile(this.props.id, fileName);
                 break;
             case "RENAME":
                 const newName = param1;
-                this.props.onRename(this.props.parentId, newName);
+                this.props.onRename(this.props.id, newName);
                 break;
             case "REMOVE":
-                this.props.onDelete(this.props.parentId);
+                this.props.onDelete(this.props.id);
                 break;
         }
 
@@ -146,7 +146,7 @@ class FolderInternal extends React.Component {
 
 
     render(){
-        let { parentId, name, level, files, folders, classes } = this.props;
+        let { name, level, files, folders, classes } = this.props;
         let { onRename, onDelete, onNewFolder, onNewFile, onSelect } = this.props;
 
         if (files === undefined) {
@@ -163,8 +163,8 @@ class FolderInternal extends React.Component {
 
         const foldersComponents = folders.map( folder => {
             return <Folder
-                key={parentId + '/' + folder.name}
-                parentId={parentId + '/' + folder.name}
+                key={folder.id}
+                id={folder.id}
                 name={folder.name}
                 level={level + 1}
                 files={folder.files}
@@ -180,8 +180,8 @@ class FolderInternal extends React.Component {
 
         const filesComponents = files.map( file => {
             return <File
-                key={parentId + '/' + file.name}
-                parentId={parentId + '/' + file.name}
+                key={file.id}
+                id={file.id}
                 name={file.name}
                 level={level + 1}
 

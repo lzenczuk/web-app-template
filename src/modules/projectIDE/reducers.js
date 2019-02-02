@@ -1,11 +1,7 @@
-import {UPDATE_FILE, NEW_FILE, NEW_FOLDER, REMOVE, RENAME, SELECT, CLEAR_SELECTION} from "./actions";
-import _ from "lodash";
-import {ActivePath, Folder} from "./model";
+import {UPDATE_FILE, NEW_FILE, NEW_FOLDER, REMOVE, RENAME, SELECT} from "./actions";
+import {createFile, createFolder, createProject, remove, rename, setActive, setContent} from "./projectModel";
 
-let initState = {
-    root: new Folder("Project name"),
-    active: new ActivePath(),
-};
+let {project: initState} = createProject("Test project");
 
 const projectIDEReducer = (state=initState, action) => {
 
@@ -13,47 +9,37 @@ const projectIDEReducer = (state=initState, action) => {
 
         case RENAME: {
 
-            let newState = _.cloneDeep(state);
+            const { id, name } = action;
 
-            const { parentId, newName } = action;
-
-            let node = newState.root.findByPath(parentId);
-            if (node !== undefined && node.parent !== undefined) {
-                node.setName(newName)
-            }
+            let {project: newState} = rename(state, id, name);
 
             return newState;
         }
 
         case REMOVE: {
-            let newState = _.cloneDeep(state);
 
-            const { parentId } = action;
+            const { id } = action;
 
-            newState.root.delete(parentId);
+            let {project: newState} = remove(state, id);
 
             return newState;
 
         }
 
         case NEW_FILE: {
-            let newState = _.cloneDeep(state);
 
-            const { parentId, newName } = action;
+            const { parentId, name } = action;
 
-            newState.root.createFile(parentId, newName, "Test content of file "+newName);
-            newState.active.setActivePath(parentId + "/" + newName);
+            let {project: newState} = createFile(state, parentId, name, "File "+name+" test content.");
 
             return newState;
-
         }
 
         case NEW_FOLDER: {
-            let newState = _.cloneDeep(state);
 
-            const { parentId, newName } = action;
+            const { parentId, name } = action;
 
-            newState.root.createFolder(parentId, newName);
+            let {project: newState} = createFolder(state, parentId, name);
 
             return newState;
 
@@ -61,33 +47,18 @@ const projectIDEReducer = (state=initState, action) => {
 
         case SELECT: {
 
-            let newState = _.cloneDeep(state);
+            const { id } = action;
 
-            const { parentId } = action;
-
-            newState.active.setActivePath(parentId);
-
-            return newState;
-        }
-
-        case CLEAR_SELECTION: {
-            let newState = _.cloneDeep(state);
-
-            newState.active.clear();
+            let {project: newState} = setActive(state, id);
 
             return newState;
         }
 
         case UPDATE_FILE: {
 
-            let newState = _.cloneDeep(state);
+            const { id, content } = action;
 
-            const { fileId, content } = action;
-
-            let node = newState.root.findByPath(fileId);
-            if(node!==undefined && node.type==="FILE"){
-                node.content=content
-            }
+            let {project: newState} = setContent(state, id, content);
 
             return newState;
         }

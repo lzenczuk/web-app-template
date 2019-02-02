@@ -26,14 +26,22 @@ export class FileEditor extends React.Component {
 
     componentWillReceiveProps(nextProps, nextContext){
 
-        // because we switching file dispatch update action on current one
-        if(this.props.fileId!==undefined && this.props.fileId!==nextProps.fileId){
-            this.props.onChange(this.props.fileId, this.state.content)
+        if(this.props.fileId === undefined && nextProps.fileId !== undefined){
+
+            this.setState({
+                content: nextProps.content
+            });
+
+            return
         }
 
-        this.setState({
-            content: nextProps.content
-        })
+        if(this.props.fileId !== nextProps.fileId) {
+            this.props.onChange(this.props.fileId, this.state.content)
+
+            this.setState({
+                content: nextProps.content
+            })
+        }
     }
 
     render(){
