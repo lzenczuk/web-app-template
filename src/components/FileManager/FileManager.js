@@ -23,8 +23,8 @@ export class FileManager extends React.Component {
 
         const rootFolder =
             <Folder
-                key={'/' + root.name}
-                parentId={'/' + root.name}
+                key={root.id}
+                id={root.id}
                 name={root.name}
                 level={0}
                 files={root.files}

@@ -1,8 +1,8 @@
 import {all, put, takeEvery, select as selectState} from "redux-saga/effects";
-import {RENAME_REQUEST} from "./actions";
-import {clearSelection, rename, select} from "./actions";
+//import {RENAME_REQUEST} from "./actions";
+//import {clearSelection, rename, select} from "./actions";
 
-const delay = (ms) => new Promise(res => setTimeout(res, ms));
+/*const delay = (ms) => new Promise(res => setTimeout(res, ms));
 
 function* rename_request(action){
 
@@ -32,10 +32,10 @@ function* rename_request(action){
 
 function* watchRename() {
     yield takeEvery(RENAME_REQUEST, rename_request)
-}
+}*/
 
 export default function* rootSaga() {
     yield all([
-        watchRename()
+        //watchRename()
     ])
 }

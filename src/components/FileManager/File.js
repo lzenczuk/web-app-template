@@ -44,7 +44,7 @@ class FileInternal extends React.Component{
 
     handleDoubleClick(e){
         e.preventDefault();
-        this.props.onSelect(this.props.parentId)
+        this.props.onSelect(this.props.id)
     };
 
     handleSelectedOperation(operation){
@@ -76,10 +76,10 @@ class FileInternal extends React.Component{
         switch (this.state.operation) {
             case "RENAME":
                 const newName = param1;
-                this.props.onRename(this.props.parentId, newName);
+                this.props.onRename(this.props.id, newName);
                 break;
             case "REMOVE":
-                this.props.onDelete(this.props.parentId);
+                this.props.onDelete(this.props.id);
                 break;
         }
 
