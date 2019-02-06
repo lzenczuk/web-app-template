@@ -1,48 +1,46 @@
-const SIZE_BYTES = 4; // number of bytes used to represent size (32 bits)
+import encoding from 'text-encoding';
+
+const UINT32_SIZE = 4;
+
+const SIZE_BYTES = UINT32_SIZE; // number of bytes used to represent size (32 bits)
 
 /**
- * Converts javascript string to binary array buffer
+ * Converts javascript string to binary array buffer in format:
+ * length in bytes (Uint32) bytes (length as first field)
  * @param text javascript string
  * @returns {ArrayBuffer}
  */
 export const textToArrayBuffer = (text) => {
-    const buffer = new ArrayBuffer(text.length * 2); // 2 bytes for each char
-    const bufView = new Uint16Array(buffer);
-    for (let i = 0, strLen = text.length; i < strLen; i++) {
-        bufView[i] = text.charCodeAt(i);
-    }
+    let textBuffer = textEncoder.encode(text).buffer;
+
+    let buffer = new ArrayBuffer(SIZE_BYTES + textBuffer.byteLength);
+    writeUint32(textBuffer.byteLength, buffer, 0);
+    writeUint8Array(buffer, textBuffer, SIZE_BYTES);
+
     return buffer;
 };
 
+const textDecoder = new encoding.TextDecoder("utf-8");
+const textEncoder = new encoding.TextEncoder("utf-8");
+
 /**
- * Converts arra
- * y buffer to javascript string
+ * Converts array buffer to javascript string
  * @param buffer
- * @param offset offset in buffer or 0 if not provided
+ * @param offset offset in buffer in bytes
  * @returns {string}
  */
-export const arrayBufferToText = (buffer, offset = 0, length) => {
+export const arrayBufferToText = (buffer, offset) => {
 
-    console.log("===========> length: "+length);
-    console.log("===========> offset: "+offset);
+    let textByteLength = readUint32(buffer, offset);
 
-    if(length === undefined){
-        length = (buffer.byteLength - offset)
-    }
+    let textBuffer = buffer.slice(offset + SIZE_BYTES, offset + SIZE_BYTES + textByteLength);
 
-    console.log("===========> length: "+length);
-
-    let textArrayBuffer = new Uint16Array(buffer, offset, length / 2);
-
-    console.log("===========> text buffer length: "+textArrayBuffer.length);
-    console.log("===========> text buffer byte length: "+textArrayBuffer.byteLength);
-    console.log("===========> text buffer content: "+arrayBufferToPrintableString(textArrayBuffer));
-
-    return String.fromCharCode.apply(null, textArrayBuffer);
+    return textDecoder.decode(new Uint8Array(textBuffer));
 };
 
 /**
- * Convert two strings to binary buffer in format: path length (Uint32), content length (Uint32), path, content
+ * Convert two strings to binary buffer in format:
+ * path length (Uint32), path length (Uint32), path, content length (Uint32), content
  * @param path
  * @param content
  * @returns {ArrayBuffer}
@@ -51,52 +49,27 @@ export const textFileToArrayBuffer = (path, content) => {
     let pathBuffer = textToArrayBuffer(path);
     let contentBuffer = textToArrayBuffer(content);
 
-    let totalLength = SIZE_BYTES + pathBuffer.byteLength + SIZE_BYTES + contentBuffer.byteLength;
+    let buffer = new ArrayBuffer(SIZE_BYTES + pathBuffer.byteLength + contentBuffer.byteLength);
 
-    let sizeBuffer = new ArrayBuffer(SIZE_BYTES * 2);
-    let sizeBufferView = new Uint32Array(sizeBuffer);
+    writeUint32(pathBuffer.byteLength, buffer, 0);
+    writeUint8Array(buffer, pathBuffer, SIZE_BYTES);
+    writeUint8Array(buffer, contentBuffer, SIZE_BYTES + pathBuffer.byteLength);
 
-    sizeBufferView[0] = pathBuffer.byteLength;
-    sizeBufferView[1] = contentBuffer.byteLength;
-
-    let fileBuffer = new ArrayBuffer(totalLength);
-    let fileBufferView = new Uint8Array(fileBuffer);
-
-    fileBufferView.set(new Uint8Array(sizeBuffer), 0);
-    fileBufferView.set(new Uint8Array(pathBuffer), sizeBuffer.byteLength);
-    fileBufferView.set(new Uint8Array(contentBuffer), sizeBuffer.byteLength + pathBuffer.byteLength);
-
-    return fileBuffer;
+    return buffer;
 };
 
 /**
- * Convert binary buffer in format: path length (Uint32), content length (Uint32), path, content to object with two string, path and content
+ * Convert binary buffer to object with two fields path (string) and content (string)
  * @param buffer
- * @param offset offset in buffer or 0 if not provided
+ * @param offset offset in buffer
  * @returns {{path: string, content: string}}
  */
-export const arrayBufferToTextFile = (buffer, offset = 0 ) => {
+export const arrayBufferToTextFile = (buffer, offset) => {
 
-    console.log("--------> offset: "+offset);
+    let pathBufferLength = readUint32(buffer, offset);
 
-    //new Uint8Array(buffer).slice(offset, offset + SIZE_BYTES * 2);
-
-    // TODO error - it expecting to offset be multiple of 4 but it doesn't have sens from whole file perspective
-    // Buffer we receiving here have to be already sliced
-    let sizeBufferView = new Uint32Array(new Uint8Array(buffer).slice(offset, offset + SIZE_BYTES * 2));
-
-    console.log("--------> text file array buffer "+arrayBufferToPrintableString(new Uint8Array(buffer).slice(offset, offset + SIZE_BYTES * 2)));
-    console.log("--------> text file array buffer "+arrayBufferToPrintableString(sizeBufferView));
-    console.log("--------> size buffer length "+sizeBufferView.length);
-
-    let pathBufferLength = sizeBufferView[0];
-    let contentBufferLength = sizeBufferView[4];
-
-    console.log("--------> pathBufferLength: "+pathBufferLength);
-    console.log("--------> content length: "+contentBufferLength);
-
-    let path = arrayBufferToText(buffer, offset + SIZE_BYTES * 2, pathBufferLength);
-    let content = arrayBufferToText(buffer, offset + SIZE_BYTES * 2 + pathBufferLength, contentBufferLength);
+    let path = arrayBufferToText(buffer, offset + SIZE_BYTES);
+    let content = arrayBufferToText(buffer, offset + SIZE_BYTES + pathBufferLength);
 
     return {path: path, content: content}
 };
@@ -115,89 +88,88 @@ export const arrayBufferToPrintableString = (buffer) => {
 };
 
 /**
- * Build array buffer from multiple files in format:
+ * Convert array of file objects containing two string fields, path and content, to ArrayByte in format:
  *
- * number on files in buffer: Uint32
+ * number of files (Uint32)
+ * file length (Uint32), path length (Uint32), path length (Uint32), path, content length (Uint32), content
+ * ...
  *
- * entries matching number of files:
- *
- * entry size: Uint32
- * file: path length (Uint32), content length (Uint32), path, content to object with two string, path and content
- *
+ * @param textFilesArray
+ * @returns {ArrayBuffer}
  */
-export class FilesBufferBuilder {
-    constructor() {
-        this.numberOfFiles = 0;
-        this.buffer = new ArrayBuffer(0);
+export const textFilesToArrayBuffer = (textFilesArray) => {
+
+    let buffers = [];
+    let numberOfFiles = 0;
+    let totalFilesSize = 0;
+
+    for(let i=0;i<textFilesArray.length;i++){
+        buffers.push(textFileToArrayBuffer(textFilesArray[i].path, textFilesArray[i].content));
+        totalFilesSize = totalFilesSize + buffers[i].byteLength;
+        numberOfFiles = numberOfFiles + 1;
     }
 
-    /**
-     * Add file to builder
-     * @param path
-     * @param content
-     */
-    addFile(path, content) {
-        this.numberOfFiles = this.numberOfFiles + 1;
-        let fileBuffer = textFileToArrayBuffer(path, content);
+    let bufferSize = SIZE_BYTES + numberOfFiles * SIZE_BYTES + totalFilesSize;
 
-        let sizeBuffer = new ArrayBuffer(SIZE_BYTES);
-        let sizeBufferView = new Uint32Array(sizeBuffer);
-        sizeBufferView[0] = fileBuffer.byteLength;
+    let buffer = new ArrayBuffer(bufferSize);
 
-        let bufferView = new Uint8Array(this.buffer.byteLength + SIZE_BYTES + fileBuffer.byteLength);
-
-        bufferView.set(new Uint8Array(this.buffer), 0);
-        bufferView.set(new Uint8Array(sizeBuffer), this.buffer.byteLength);
-        bufferView.set(new Uint8Array(fileBuffer), this.buffer.byteLength + SIZE_BYTES);
-
-        this.buffer = bufferView.buffer;
-    }
-
-    /**
-     * Generate array buffer based on added files
-     * @returns {ArrayBuffer}
-     */
-    buildFilesArrayBuffer() {
-        let sizeBuffer = new ArrayBuffer(SIZE_BYTES);
-        let sizeBufferView = new Uint32Array(sizeBuffer);
-
-        sizeBufferView[0] = this.numberOfFiles;
-
-        let totalLength = SIZE_BYTES + this.buffer.byteLength;
-
-        let filesBuffer = new ArrayBuffer(totalLength);
-        let filesBufferView = new Uint8Array(filesBuffer);
-
-        filesBufferView.set(new Uint8Array(sizeBuffer), 0);
-        filesBufferView.set(new Uint8Array(this.buffer), sizeBuffer.byteLength);
-
-        return filesBuffer;
-    }
-}
-
-export const arrayBufferToFiles = buffer => {
-
-    let files = [];
-
-    let numberOfFilesBufferView = new Uint32Array(buffer, 0, SIZE_BYTES / 4);
-    let numberOfFiles = numberOfFilesBufferView[0];
-
-    console.log("----------> number of files: "+numberOfFiles);
+    writeUint32(numberOfFiles, buffer, 0);
 
     let offset = SIZE_BYTES;
 
-    for (let i = 0; i < numberOfFiles; i++) {
-        console.log("----------> offset: "+offset);
-        let sizeBufferView = new Uint32Array(new Uint8Array(buffer, offset, SIZE_BYTES));
-        let fileBufferLength = sizeBufferView[0];
+    for(let i=0; i<numberOfFiles; i++){
 
-        console.log("----------> file buffer length: "+fileBufferLength);
+        let fb = buffers[i];
 
-        files.push(arrayBufferToTextFile(buffer, offset + SIZE_BYTES));
+        writeUint32(fb.byteLength, buffer, offset);
+        writeUint8Array(buffer, fb, offset+SIZE_BYTES);
 
-        offset = offset + SIZE_BYTES + fileBufferLength;
+        offset = offset + SIZE_BYTES + fb.byteLength;
+    }
+
+    return buffer;
+};
+
+/**
+ * Extracts list of files from array buffer
+ * @param buffer
+ * @param offset
+ * @returns {Array} Array of objects { path (string), content (string)}
+ */
+export const arrayBufferToTextFiles = (buffer, offset) => {
+
+    let files = [];
+
+
+    let numberOfFiles = readUint32(buffer, offset);
+
+    offset = offset+SIZE_BYTES;
+
+    for(let i=0; i<numberOfFiles; i++) {
+
+        let fileLength = readUint32(buffer, offset);
+        offset = offset + SIZE_BYTES;
+
+        files.push(arrayBufferToTextFile(buffer, offset));
+        offset = offset + fileLength;
     }
 
     return files;
-
 };
+
+const writeUint8Array = (destBuffer, srcBuffer, offset) => {
+    new Uint8Array(destBuffer).set(new Uint8Array(srcBuffer), offset);
+};
+
+export const readUint32 = (buffer, offset) => new Uint32Array(buffer.slice(offset, offset + UINT32_SIZE))[0];
+
+export const writeUint32 = (value, buffer, offset) => {
+
+    let uint32Buffer = new ArrayBuffer(UINT32_SIZE);
+    let uint32BufferView = new Uint32Array(uint32Buffer);
+
+    uint32BufferView[0] = value;
+
+    writeUint8Array(buffer, uint32Buffer, offset);
+};
+
