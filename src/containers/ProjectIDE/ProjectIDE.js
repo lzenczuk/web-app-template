@@ -1,6 +1,6 @@
 import {connect} from "react-redux";
 
-import {newFile, newFolder, remove, rename, select, updateFile} from "../../modules/projectIDE/actions";
+import {newFile, newFolder, remove, rename, select, sendProject, updateFile} from "../../modules/projectIDE/actions";
 
 import {ProjectIDE as ProjectIDEComponent} from "../../components/ProjectIDE";
 import {toJsTree} from "../../modules/projectIDE/projectModel";
@@ -43,6 +43,9 @@ const mapDispatchToProps = dispatch => {
         },
         onChange: (id, content) => {
             dispatch(updateFile(id, content))
+        },
+        onSend: () => {
+            dispatch(sendProject())
         }
     }
 };

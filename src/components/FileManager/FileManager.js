@@ -1,5 +1,6 @@
 import React, {Fragment} from "react";
 import {Folder} from "./Folder";
+import Button from "@material-ui/core/Button/Button";
 
 
 export class FileManager extends React.Component {
@@ -19,7 +20,7 @@ export class FileManager extends React.Component {
 
     render(){
         const { root } = this.props;
-        const { onRename, onDelete, onNewFolder, onNewFile, onSelect } = this.props;
+        const { onRename, onDelete, onNewFolder, onNewFile, onSelect, onSend } = this.props;
 
         const rootFolder =
             <Folder
@@ -38,6 +39,7 @@ export class FileManager extends React.Component {
             />;
 
         return (<Fragment>
+            <Button onClick={onSend}>Send</Button>
             {rootFolder}
         </Fragment>)
     }

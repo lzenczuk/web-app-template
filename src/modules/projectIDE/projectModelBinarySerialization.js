@@ -1,8 +1,43 @@
 import encoding from 'text-encoding';
+import {FOLDER} from "./projectModel";
 
 const UINT32_SIZE = 4;
 
 const SIZE_BYTES = UINT32_SIZE; // number of bytes used to represent size (32 bits)
+
+/**
+ * Write data from source buffer to destination buffer with offset in destination buffer
+ * @param destBuffer destination buffer
+ * @param srcBuffer source buffer
+ * @param offset offset in destination buffer to start writing from
+ */
+const writeUint8Array = (destBuffer, srcBuffer, offset) => {
+    new Uint8Array(destBuffer).set(new Uint8Array(srcBuffer), offset);
+};
+
+/**
+ * Read one uint32 number from buffer
+ * @param buffer
+ * @param offset
+ * @returns {number}
+ */
+export const readUint32 = (buffer, offset) => new Uint32Array(buffer.slice(offset, offset + UINT32_SIZE))[0];
+
+/**
+ * Write ont uint32 number to buffer
+ * @param value uint32 number
+ * @param buffer buffer to write in
+ * @param offset offset in buffer to start writing from
+ */
+export const writeUint32 = (value, buffer, offset) => {
+
+    let uint32Buffer = new ArrayBuffer(UINT32_SIZE);
+    let uint32BufferView = new Uint32Array(uint32Buffer);
+
+    uint32BufferView[0] = value;
+
+    writeUint8Array(buffer, uint32Buffer, offset);
+};
 
 /**
  * Converts javascript string to binary array buffer in format:
@@ -75,19 +110,6 @@ export const arrayBufferToTextFile = (buffer, offset) => {
 };
 
 /**
- * Converts binary buffer to array like string with decimal 8bits values
- * @param buffer
- * @returns {string}
- */
-export const arrayBufferToPrintableString = (buffer) => {
-    let numbers = [];
-
-    new Uint8Array(buffer).forEach(number => numbers.push(number + ""));
-
-    return "[ " + numbers.join(", ") + " ]";
-};
-
-/**
  * Convert array of file objects containing two string fields, path and content, to ArrayByte in format:
  *
  * number of files (Uint32)
@@ -157,19 +179,76 @@ export const arrayBufferToTextFiles = (buffer, offset) => {
     return files;
 };
 
-const writeUint8Array = (destBuffer, srcBuffer, offset) => {
-    new Uint8Array(destBuffer).set(new Uint8Array(srcBuffer), offset);
+/**
+ * Convert immutable project into array buffer in format:
+ *
+ * project name length (Uint32), project name length (Uint32), project name
+ * number of files (Uint32)
+ * file length (Uint32), path length (Uint32), path length (Uint32), path, content length (Uint32), content
+ * ...
+ * @param project
+ * @returns {ArrayBuffer}
+ */
+export const projectToArrayBuffer = (project) => {
+
+    let rootId = project.get('rootId');
+    let projectName = project.getIn(['nodes', rootId, 'name']);
+
+    let projectNameBuffer = textToArrayBuffer(projectName);
+
+    let files = extractFiles("", rootId, project);
+    let filesBuffer = textFilesToArrayBuffer(files);
+
+    let buffer = new ArrayBuffer(SIZE_BYTES + projectNameBuffer.byteLength + filesBuffer.byteLength);
+
+    writeUint32(projectNameBuffer.byteLength, buffer, 0);
+    writeUint8Array(buffer, projectNameBuffer, SIZE_BYTES);
+    writeUint8Array(buffer, filesBuffer, SIZE_BYTES + projectNameBuffer.byteLength);
+
+    return buffer;
 };
 
-export const readUint32 = (buffer, offset) => new Uint32Array(buffer.slice(offset, offset + UINT32_SIZE))[0];
+/**
+ * Extracts files from project into array of text file objects using recursion
+ * @param basePath string representing beginning of path (root)
+ * @param nodeId id of node in project to start from
+ * @param project
+ * @returns {Array} array of { path (string), content (string)} objects
+ */
+export const extractFiles = (basePath, nodeId, project) => {
+    let node = project.getIn(['nodes', nodeId]);
 
-export const writeUint32 = (value, buffer, offset) => {
+    let nodeName = node.get('name');
+    let nodePath = basePath + "/" + nodeName;
 
-    let uint32Buffer = new ArrayBuffer(UINT32_SIZE);
-    let uint32BufferView = new Uint32Array(uint32Buffer);
+    let files = [];
 
-    uint32BufferView[0] = value;
+    if (node.get('type') === FOLDER) {
+        node.get('files')
+            .map(fileId => project.getIn(['nodes', fileId]))
+            .map(file => {
+                return {path: nodePath + "/" + file.get('name'), content: file.get('content')}
+            })
+            .forEach(textFile => files.push(textFile));
 
-    writeUint8Array(buffer, uint32Buffer, offset);
+        node.get('folders')
+            .map(folderId => extractFiles(nodePath, folderId, project))
+            .forEach(textFilesArray => files = files.concat(textFilesArray))
+    }
+
+    return files
+};
+
+/**
+ * Helper function converting binary buffer to array like string with decimal 8bits values
+ * @param buffer
+ * @returns {string}
+ */
+export const arrayBufferToPrintableString = (buffer) => {
+    let numbers = [];
+
+    new Uint8Array(buffer).forEach(number => numbers.push(number + ""));
+
+    return "[ " + numbers.join(", ") + " ]";
 };
 

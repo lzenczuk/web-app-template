@@ -4,6 +4,7 @@ export const NEW_FILE = 'NEW_FILE';
 export const NEW_FOLDER = 'NEW_FOLDER';
 export const SELECT = 'SELECT';
 export const UPDATE_FILE = 'UPDATE_FILE';
+export const SEND_PROJECT = 'SEND_PROJECT';
 
 
 export const rename = (id, name) => {
@@ -28,4 +29,8 @@ export const select = (id) => {
 
 export const updateFile = (id, content) => {
     return { type: UPDATE_FILE , id: id, content: content }
+};
+
+export const sendProject = () => {
+    return { type: SEND_PROJECT }
 };

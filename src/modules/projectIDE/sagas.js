@@ -1,4 +1,6 @@
 import {all, put, takeEvery, select as selectState} from "redux-saga/effects";
+import {SEND_PROJECT} from "./actions";
+import {sendProjectToServer} from "./api";
 //import {RENAME_REQUEST} from "./actions";
 //import {clearSelection, rename, select} from "./actions";
 
@@ -34,8 +36,17 @@ function* watchRename() {
     yield takeEvery(RENAME_REQUEST, rename_request)
 }*/
 
+function* send_project_to_server(action){
+    console.log("---------> send project saga")
+    sendProjectToServer()
+}
+
+function* watchSendProject() {
+    yield takeEvery(SEND_PROJECT, send_project_to_server)
+}
+
 export default function* rootSaga() {
     yield all([
-        //watchRename()
+        watchSendProject()
     ])
 }

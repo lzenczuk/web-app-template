@@ -19,6 +19,11 @@ const createFolderNode = (name, parentId, readOnly) => {
     return folder;
 };
 
+/**
+ * Create new immutable project
+ * @param projectName
+ * @returns {{project: (*|Immutable.Map<any, any>|Immutable.Map<string, V>), rootId: V}} object containing project and rootId
+ */
 export const createProject = (projectName) => {
 
     let folder = createFolderNode(projectName, undefined, true);
@@ -29,6 +34,14 @@ export const createProject = (projectName) => {
     return {project: project, rootId: folder.get('id')};
 };
 
+/**
+ * Create new immutable project with new file
+ * @param project
+ * @param parentId
+ * @param name
+ * @param content
+ * @returns {{project: Cursor, fileId: *}} object containing new project and fileId
+ */
 export const createFile = (project, parentId, name, content) => {
 
     if(project === undefined){

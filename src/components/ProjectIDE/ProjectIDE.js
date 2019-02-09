@@ -9,13 +9,13 @@ export class ProjectIDE extends React.Component {
     render() {
 
         const { root, content, active, fileId} = this.props;
-        const { onRename, onDelete, onNewFolder, onNewFile, onSelect, onChange } = this.props;
+        const { onRename, onDelete, onNewFolder, onNewFile, onSelect, onChange, onSend } = this.props;
 
         return (
             <Grid container direction="row" justify="flex-start" alignItems="stretch" spacing={8}>
                 <Grid item xs={3} container alignItems="stretch">
                     <Paper style={{flexGrow: 1}}>
-                        <FileManager root={root} onRename={onRename} onDelete={onDelete} onNewFolder={onNewFolder} onNewFile={onNewFile} onSelect={onSelect}/>
+                        <FileManager root={root} onRename={onRename} onDelete={onDelete} onNewFolder={onNewFolder} onNewFile={onNewFile} onSelect={onSelect} onSend={onSend}/>
                     </Paper>
                 </Grid>
                 <Grid item xs={9} container alignItems="stretch">
