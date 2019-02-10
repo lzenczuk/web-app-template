@@ -38,7 +38,10 @@ function* watchRename() {
 
 function* send_project_to_server(action){
     console.log("---------> send project saga")
-    sendProjectToServer()
+
+    const state = yield selectState();
+
+    sendProjectToServer(state.project)
 }
 
 function* watchSendProject() {

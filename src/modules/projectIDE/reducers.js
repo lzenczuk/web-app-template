@@ -1,7 +1,7 @@
 import {UPDATE_FILE, NEW_FILE, NEW_FOLDER, REMOVE, RENAME, SELECT} from "./actions";
 import {createFile, createFolder, createProject, remove, rename, setActive, setContent} from "./projectModel";
 
-let {project: initState} = createProject("Test project");
+let {project: initState} = createProject("eos_project");
 
 const projectIDEReducer = (state=initState, action) => {
 

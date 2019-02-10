@@ -1,12 +1,13 @@
 import {
-    arrayBufferToPrintableString,
+    arrayBufferToPrintableString, projectToArrayBuffer,
     textFileToArrayBuffer,
     textToArrayBuffer
 } from "./projectModelBinarySerialization";
+import {createFile, createFolder, createProject} from "./projectModel";
 
-export const sendProjectToServer = () => {
+export const sendProjectToServer = (project) => {
 
-    let arrayBuffer = textFileToArrayBuffer("/src/proxy/proxy.cpp", "This is proxy file");
+    let arrayBuffer = projectToArrayBuffer(project);
 
     console.log("-------> Buffer: "+arrayBufferToPrintableString(arrayBuffer));
 
