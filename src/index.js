@@ -14,8 +14,9 @@ import Button from '@material-ui/core/Button';
 import { Provider } from 'react-redux'
 import store from "./config";
 import {ProjectIDE} from "./containers/ProjectIDE";
+import {ApplicationTopBar} from "./containers/ApplicationTopBar";
 
-ScatterJS.plugins( new ScatterEOS() );
+/*ScatterJS.plugins( new ScatterEOS() );
 
 const network = ScatterJS.Network.fromJson({
     blockchain:'eos',
@@ -23,7 +24,7 @@ const network = ScatterJS.Network.fromJson({
     host:'nodes.get-scatter.com',
     port:443,
     protocol:'https'
-});
+});*/
 
 /*ident = {
     "hash": "d35a41e9fd309bc8f0d0528176c1782f1139adeac9afacda2caab14f1cb2df48",
@@ -42,7 +43,7 @@ const network = ScatterJS.Network.fromJson({
 
 class App extends React.Component{
 
-    constructor(props) {
+    /*constructor(props) {
         super(props);
 
         this.state = {
@@ -103,12 +104,12 @@ class App extends React.Component{
             loggedIn: false,
             connected: true
         });
-    }
+    }*/
 
 
     render(){
 
-        let loginButton = null;
+        /*let loginButton = null;
 
         if(this.state.loggedIn){
             loginButton = <Fragment>
@@ -117,21 +118,18 @@ class App extends React.Component{
             </Fragment>
         }else{
             loginButton = <Button onClick={this.login.bind(this)}>Login</Button>
-        }
+        }*/
 
         return <Provider store={store}>
             <Fragment>
                 <CssBaseline/>
-                <AppBar>
-                    <ToolBar variant="dense">
-                        <Typography variant="h6" style={{flexGrow: 1}}>Hello</Typography>
-                        <Typography variant="caption">{BRANCH} {COMMITHASH}</Typography>
-                        {loginButton}
-                    </ToolBar>
-                </AppBar>
+                <ApplicationTopBar/>
                 <ProjectIDE/>
             </Fragment>
         </Provider>
+
+        // TODO - add this!!!!!
+        // <Typography variant="caption">{BRANCH} {COMMITHASH}</Typography>
     }
 }
 
