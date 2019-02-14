@@ -15,16 +15,12 @@ export const connectToMainEosNetwork = () => ScatterJS.scatter.connect('MyEosApp
 
 export const loginEosAccount = () => {
 
-    console.log("call login")
-
     const requiredFields = {
         accounts:[ eosMainNetwork ]
     };
 
-    return ScatterJS.scatter.getIdentity(requiredFields).then( id => {
-        console.log("receive identity: "+JSON.stringify(id))
-
-        return id;
-    });
+    return ScatterJS.scatter.getIdentity(requiredFields);
 };
+
+export const logoutEosAccount = () => ScatterJS.scatter.forgetIdentity();
 

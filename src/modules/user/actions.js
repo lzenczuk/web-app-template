@@ -19,3 +19,7 @@ export const eosLogedIn = (userName, publicKey) => {
 export const eosLogoutRequest = () => {
     return { type: EOS_LOGOUT_REQUEST }
 };
+
+export const eosLogedOut = () => {
+    return { type: EOS_LOGGED_OUT }
+};
