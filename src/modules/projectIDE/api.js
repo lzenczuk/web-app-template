@@ -18,17 +18,6 @@ const splitStringTo12CharsChunks = (stringToSplit) => {
     }
 };
 
-const readChunk = (reader, readerFunction) => {
-    reader.read().then(({done, value}) => {
-        if(done){
-            return;
-        }
-
-        readerFunction(value);
-        return readChunk(reader, readerFunction)
-    })
-};
-
 export const sendProjectToServer = (project, publicKey) => {
 
     let fileBuffer = projectToArrayBuffer(project);
@@ -41,22 +30,15 @@ export const sendProjectToServer = (project, publicKey) => {
 
         console.log("Signature: " + signature);
 
-        fetch("/server", {
-            method: "POST",
-            cache: "no-cache",
-            body: new Blob([new Uint8Array(fileBuffer)])
-        }).then(response => {
-            console.log("-----> server response" + response);
-            return response.body
-        }).then(body => {
-            const reader = body.getReader();
+        const socket = new WebSocket('ws://localhost:7880/server');
 
-            return readChunk(reader, (v) => console.log("=======> receive: "+v))
+        socket.addEventListener('open', function (event) {
+            socket.send(fileBuffer);
+        });
 
-        }).catch(error => {
-            console.error(error)
-        })
-
+        socket.addEventListener('message', function (event) {
+            console.log('Message from server ', event.data);
+        });
 
     }).catch(error => {
         console.log("---------> Error!", error)

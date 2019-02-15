@@ -1,6 +1,8 @@
 import {all, put, takeEvery, select as selectState} from "redux-saga/effects";
 import {SEND_PROJECT} from "./actions";
 import {sendProjectToServer} from "./api";
+import {logoutEosAccount} from "../user/api";
+import {eosLogedOut} from "../user/actions";
 //import {RENAME_REQUEST} from "./actions";
 //import {clearSelection, rename, select} from "./actions";
 
@@ -40,8 +42,12 @@ function* send_project_to_server(action){
     console.log("---------> send project saga")
 
     const state = yield selectState();
+    const project = state.project;
+    const user = state.user;
 
-    sendProjectToServer(state.project)
+    if (user.loggedIn) {
+        sendProjectToServer(project, user.publicKey)
+    }
 }
 
 function* watchSendProject() {
