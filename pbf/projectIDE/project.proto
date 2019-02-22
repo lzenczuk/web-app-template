@@ -1,0 +1,19 @@
+syntax = "proto3";
+
+package eos.contract;
+
+message Project {
+    int32 version = 1;
+    string name = 2;
+    repeated ProjectFolder folders = 3;
+    repeated ProjectFile files = 4;
+}
+
+message ProjectFile {
+    string path = 1;
+    string content = 2;
+}
+
+message ProjectFolder {
+    string path = 1;
+}

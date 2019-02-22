@@ -2,6 +2,7 @@ const webpack = require('webpack');
 
 const HtmlWebPackPlugin = require("html-webpack-plugin");
 const GitRevisionPlugin = require('git-revision-webpack-plugin');
+const CopyPlugin = require('copy-webpack-plugin');
 
 const gitRevisionPlugin = new GitRevisionPlugin();
 
@@ -26,7 +27,10 @@ module.exports = {
             'VERSION': JSON.stringify(gitRevisionPlugin.version()),
             'COMMITHASH': JSON.stringify(gitRevisionPlugin.commithash()),
             'BRANCH': JSON.stringify(gitRevisionPlugin.branch()),
-        })
+        }),
+        new CopyPlugin([
+            { from: 'pbf', to: 'pbf' }
+        ])
     ],
     entry: {
         js: ['@babel/polyfill', './src/index.js'],
